@@ -1,16 +1,27 @@
 // src/components/Header.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import styles from '../styles/header.module.css';
+import Image from 'next/image';
+import useUser from '../hooks/useUser.ts';
 
 const Header = () => {
-  const { user, isLoading } = useUser();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { user, isAuthenticated } = useUser();
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  useEffect(() => {
+    if (user) {
+      console.log('User Data:', user);
+    } else {
+      console.log('No user data available.');
+    }
+  }, [user]);
+
+  const toggleDropdown = () => {
+    setShowDropdown((prev) => !prev);
+  };
 
   return (
     <header className={styles.header}>
@@ -18,29 +29,36 @@ const Header = () => {
         <Link href="/" className={styles.title}>GeoMart</Link>
       </div>
       <div className={styles.actions}>
-        {/* Profile Dropdown */}
+        <input type="text" placeholder="Search products..." className={styles.searchBar} />
+        <Link href="/specials" className={styles.actionLink}>Specials</Link>
+        <Link href="/cart" className={styles.actionLink}>Cart</Link>
+        <Link href="/contact" className={styles.actionLink}>Contact</Link>
+
+        {/* Profile Icon */}
         <div className={styles.profileContainer} onClick={toggleDropdown}>
-          {user ? (
-            <img src={user.picture || '/default-profile.png'} alt="Profile" className={styles.profileIcon} />
-          ) : (
-            <span className={styles.profileIcon}>👤</span>
-          )}
-          {dropdownOpen && (
+            <Image
+              src={user?.picture || `https://ui-avatars.com/api/?name=Guest&background=333333&color=ffffff&size=128`}
+              alt="Profile"
+              width={30}
+              height={30}
+              className={styles.profileIcon}
+            />
+          {showDropdown && (
             <div className={styles.dropdown}>
-              {!user ? (
+              {isAuthenticated ? (
                 <>
-                  <Link href="/api/auth/login" passHref>
-                    <a className={styles.dropdownItem}>Log In</a>
-                  </Link>
-                  <Link href="/api/auth/login?screen_hint=signup" passHref>
-                    <a className={styles.dropdownItem}>Sign Up</a>
+                  <span className={styles.welcomeText}>Welcome, {user?.nickname || 'User'}</span>
+                  <Link href="/api/auth/logout" className={styles.dropdownItem}>
+                    Log Out
                   </Link>
                 </>
               ) : (
                 <>
-                  <p className={styles.dropdownItem}>Hello, {user.name}</p>
-                  <Link href="/api/auth/logout" passHref>
-                    <a className={styles.dropdownItem}>Log Out</a>
+                  <Link href="/api/auth/login" className={styles.dropdownItem}>
+                    Log In
+                  </Link>
+                  <Link href="/api/auth/signup" className={styles.dropdownItem}>
+                    Sign Up
                   </Link>
                 </>
               )}
