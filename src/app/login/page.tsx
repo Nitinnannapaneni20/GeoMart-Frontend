@@ -1,12 +1,28 @@
+// src/app/login/page.tsx
+import React from 'react';
 import Header from '@/components/Header';
+import styles from './login.module.css';
 
 export default function Login() {
   return (
     <>
       <Header />
-      <main className="bg-white min-h-screen flex items-center justify-center">
-        <h2 className="text-2xl">login Content Goes Here</h2>
-      </main>
+      <div className={styles.loginContainer}>
+        <div className={styles.loginBox}>
+          <h2 className={styles.heading}>Customer Login</h2>
+          <form className={styles.loginForm}>
+            <label>Email Address</label>
+            <input type="email" placeholder="Email Address" />
+            <label>Password</label>
+            <input type="password" placeholder="Password" />
+            <div className={styles.buttonContainer}>
+              <button type="submit" className={styles.signInButton}>Sign In</button>
+              <button type="button" className={styles.signUpButton}>Sign Up</button>
+              <a href="#" className={styles.forgotPassword}>Forgot the password?</a>
+            </div>
+          </form>
+        </div>
+      </div>
     </>
   );
 }
