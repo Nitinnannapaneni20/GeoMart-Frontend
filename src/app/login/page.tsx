@@ -12,7 +12,7 @@ export default function Login() {
           <h2 className={styles.heading}>Customer Login</h2>
           <form className={styles.loginForm}>
             <label>Email Address</label>
-            <input type="email" placeholder="Email Address" />
+            <input type="email" placeholder="Email sssAddress" />
             <label>Password</label>
             <input type="password" placeholder="Password" />
             <div className={styles.buttonContainer}>
