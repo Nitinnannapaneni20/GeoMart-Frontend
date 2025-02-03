@@ -62,7 +62,7 @@ const Header = () => {
     <header className={styles.header}>
       <div className={styles.logo}>
         <Link href="/" className={styles.title}>
-          GeoMart
+          Geo Mart with LOGO
         </Link>
       </div>
       <div className={styles.actions}>
@@ -73,10 +73,8 @@ const Header = () => {
           ))}
         </select>
 
-        <input type="text" placeholder="Search products..." className={styles.searchBar} />
         <Link href="/specials" className={styles.actionLink}>Specials</Link>
         <Link href="/cart" className={styles.actionLink}>Cart</Link>
-        <Link href="/contact" className={styles.actionLink}>Contact</Link>
 
         {/* Profile Icon */}
         <div className={styles.profileContainer} onClick={() => setShowDropdown(!showDropdown)}>
@@ -89,9 +87,10 @@ const Header = () => {
           />
           {showDropdown && (
             <div className={styles.dropdown}>
+              <span className={styles.welcomeText}>Welcome, {isAuthenticated ? user?.nickname || "User" : "Guest"}</span>
               {isAuthenticated ? (
                 <>
-                  <span className={styles.welcomeText}>Welcome, {user?.nickname || "User"}</span>
+                  <Link href="/order-history" className={styles.dropdownItem}>Order History</Link>
                   <Link href="/api/auth/logout" className={styles.dropdownItem}>Log Out</Link>
                 </>
               ) : (
@@ -100,6 +99,7 @@ const Header = () => {
                   <Link href="/api/auth/signup" className={styles.dropdownItem}>Sign Up</Link>
                 </>
               )}
+              <Link href="/contact" className={styles.dropdownItem}>Contact</Link>
             </div>
           )}
         </div>
