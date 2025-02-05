@@ -13,7 +13,6 @@ const Header = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // Load Dark Mode Setting
     const storedTheme = localStorage.getItem("theme");
     if (storedTheme === "dark") {
       setDarkMode(true);
@@ -22,7 +21,6 @@ const Header = () => {
       document.documentElement.classList.remove("dark");
     }
 
-    // Load User Location
     const storedLocation = localStorage.getItem("userLocation");
     if (storedLocation && locations.includes(storedLocation)) {
       setSelectedLocation(storedLocation);
@@ -49,26 +47,26 @@ const Header = () => {
   return (
     <header className="bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50">
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        {/* Logo */}
+        {/* Left-aligned GeoMart Logo */}
         <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
           GeoMart
         </Link>
 
-        {/* Location Dropdown */}
-        <select
-          className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white p-2 rounded-md border border-gray-300 dark:border-gray-600"
-          value={selectedLocation}
-          onChange={handleLocationChange}
-        >
-          {locations.map((loc) => (
-            <option key={loc} value={loc}>
-              {loc}
-            </option>
-          ))}
-        </select>
-
-        {/* Actions */}
+        {/* Right-aligned Navigation & Actions */}
         <div className="flex items-center gap-6">
+          {/* Location Dropdown */}
+          <select
+            className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white p-2 rounded-md border border-gray-300 dark:border-gray-600"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+          >
+            {locations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
+          </select>
+
           {/* Specials Link */}
           <Link href="/specials" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
             Specials
