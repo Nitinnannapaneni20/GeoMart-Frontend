@@ -1,54 +1,109 @@
-import Header from '@/components/Header';
-import '@/styles/homepage.css';
+"use client";
+import { useEffect, useState } from "react";
+import Header from "@/components/Header";
+import { fetchProductsDataByLocation } from "@/services/Apis";
+import "@/styles/homepage.css";
 
 export default function HomePage() {
+  const [data, setData] = useState({ categories: [], productTypes: [], products: [] });
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [filteredTypes, setFilteredTypes] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const locationId = 1; // You can dynamically change this
+      const result = await fetchProductsDataByLocation(locationId);
+      if (result) {
+        setData(result);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // ✅ Update product types dropdown when category changes
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const categoryId = parseInt(e.target.value);
+    setSelectedCategory(categoryId.toString());
+    setFilteredTypes(data.productTypes.filter((type) => type.CategoryID === categoryId));
+    setFilteredProducts([]);
+    setSelectedType("");
+  };
+
+  // ✅ Update products dropdown when product type changes
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const typeId = parseInt(e.target.value);
+    setSelectedType(typeId.toString());
+    setFilteredProducts(data.products.filter((product) => product.TypeID === typeId));
+  };
+
+  // ✅ Handle Search Button Click
+  const handleSearch = () => {
+    setSearchResults(filteredProducts);
+  };
+
   return (
     <>
       <Header />
       <main className="homepage-container">
-        {/* Marquee for special offers */}
         <div className="marquee">
-        <p>Specials with offers and stuff goes here with marquee effect and has buttons on left and right side to toggle between offers</p>
+          <p>Special offers and discounts available!</p>
         </div>
 
-        {/* Search Section */}
         <div className="search-section">
-          <select className="search-bar">
-            <option>Product Category</option>
-            <option>Rice and Rice products</option>
-            <option>Millet and Millet Products</option>
-
-          </select>
-          <select className="search-bar">
-            <option>Product Type</option>
-            <option>Dry Fruits and Nuts</option>
-            <option>Masalas and Spices</option>
-            <option>Atta and Flours</option>
-            <option>Pickles</option>
-          </select>
-          <select className="search-bar">
-            <option>Products</option>
-            <option>Dry Fruits and Nuts</option>
-            <option>Masalas and Spices</option>
-            <option>Atta and Flours</option>
-            <option>Pickles</option>
+          {/* ✅ Category Dropdown */}
+          <select className="search-bar" onChange={handleCategoryChange}>
+            <option value="">Select Category</option>
+            {data.categories.map((cat) => (
+              <option key={cat.ID} value={cat.ID}>
+                {cat.Name}
+              </option>
+            ))}
           </select>
 
-          <button>search </button>
+          {/* ✅ Product Type Dropdown */}
+          <select className="search-bar" onChange={handleTypeChange} disabled={!selectedCategory}>
+            <option value="">Select Product Type</option>
+            {filteredTypes.map((type) => (
+              <option key={type.ID} value={type.ID}>
+                {type.Name}
+              </option>
+            ))}
+          </select>
+
+          {/* ✅ Product Dropdown */}
+          <select className="search-bar" disabled={!selectedType}>
+            <option value="">Select Product</option>
+            {filteredProducts.map((prod) => (
+              <option key={prod.ID} value={prod.ID}>
+                {prod.Name}
+              </option>
+            ))}
+          </select>
+
+          <button onClick={handleSearch}>Search</button>
         </div>
 
-        {/* Product Grid */}
         <div className="product-grid">
-          {[...Array(8)].map((_, index) => (
-            <div key={index} className="product-item">Product {index + 1}</div>
-          ))}
+          {searchResults.length > 0 ? (
+            searchResults.map((prod) => (
+              <div key={prod.ID} className="product-item">
+                <img src={prod.ImageURL} alt={prod.Name} className="product-image" />
+                <h4>{prod.Name}</h4>
+                <p>{prod.Brand}</p>
+                <p>₹{prod.Cost}</p>
+              </div>
+            ))
+          ) : (
+            <p>Select filters and click search to see results.</p>
+          )}
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="footer">
-        Footer Content goes here
-      </footer>
+      <footer className="footer">Footer Content goes here</footer>
     </>
   );
 }
