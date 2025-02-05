@@ -2,106 +2,111 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import styles from "../styles/header.module.css";
 import Image from "next/image";
-import useUser from "../hooks/useUser.ts";
+import { Sun, Moon, ShoppingCart, User } from "lucide-react";
 
 const locations = ["Leeds", "Huddersfield"];
 
 const Header = () => {
-  const { user, isAuthenticated } = useUser();
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState("Leeds");
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
+    // Load Dark Mode Setting
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme === "dark") {
+      setDarkMode(true);
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
+    // Load User Location
     const storedLocation = localStorage.getItem("userLocation");
     if (storedLocation && locations.includes(storedLocation)) {
       setSelectedLocation(storedLocation);
-    } else {
-      detectLocation();
     }
   }, []);
 
-  const detectLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-            .then((res) => res.json())
-            .then((data) => {
-              const city = data.address.city || data.address.town || "Leeds";
-              if (locations.includes(city)) {
-                setSelectedLocation(city);
-                localStorage.setItem("userLocation", city);
-              } else {
-                setSelectedLocation("Leeds");
-                localStorage.setItem("userLocation", "Leeds");
-              }
-            })
-            .catch(() => {
-              setSelectedLocation("Leeds");
-              localStorage.setItem("userLocation", "Leeds");
-            });
-        },
-        () => {
-          setSelectedLocation("Leeds");
-          localStorage.setItem("userLocation", "Leeds");
-        }
-      );
+  const handleThemeToggle = () => {
+    setDarkMode(!darkMode);
+    if (!darkMode) {
+      localStorage.setItem("theme", "dark");
+      document.documentElement.classList.add("dark");
+    } else {
+      localStorage.setItem("theme", "light");
+      document.documentElement.classList.remove("dark");
     }
   };
 
-  const handleLocationChange = (event) => {
+  const handleLocationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newLocation = event.target.value;
     setSelectedLocation(newLocation);
     localStorage.setItem("userLocation", newLocation);
   };
 
   return (
-    <header className={styles.header}>
-      <div className={styles.logo}>
-        <Link href="/" className={styles.title}>
-          Geo Mart with LOGO
+    <header className="bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50">
+      <div className="container mx-auto flex items-center justify-between px-6 py-4">
+        {/* Logo */}
+        <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
+          GeoMart
         </Link>
-      </div>
-      <div className={styles.actions}>
+
         {/* Location Dropdown */}
-        <select className={styles.locationDropdown} value={selectedLocation} onChange={handleLocationChange}>
+        <select
+          className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white p-2 rounded-md border border-gray-300 dark:border-gray-600"
+          value={selectedLocation}
+          onChange={handleLocationChange}
+        >
           {locations.map((loc) => (
-            <option key={loc} value={loc}>{loc}</option>
+            <option key={loc} value={loc}>
+              {loc}
+            </option>
           ))}
         </select>
 
-        <Link href="/specials" className={styles.actionLink}>Specials</Link>
-        <Link href="/cart" className={styles.actionLink}>Cart</Link>
+        {/* Actions */}
+        <div className="flex items-center gap-6">
+          {/* Specials Link */}
+          <Link href="/specials" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+            Specials
+          </Link>
 
-        {/* Profile Icon */}
-        <div className={styles.profileContainer} onClick={() => setShowDropdown(!showDropdown)}>
-          <Image
-            src={user?.picture || `https://ui-avatars.com/api/?name=Guest&background=333333&color=ffffff&size=128`}
-            alt="Profile"
-            width={30}
-            height={30}
-            className={styles.profileIcon}
-          />
-          {showDropdown && (
-            <div className={styles.dropdown}>
-              <span className={styles.welcomeText}>Welcome, {isAuthenticated ? user?.nickname || "User" : "Guest"}</span>
-              {isAuthenticated ? (
-                <>
-                  <Link href="/order-history" className={styles.dropdownItem}>Order History</Link>
-                  <Link href="/api/auth/logout" className={styles.dropdownItem}>Log Out</Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/api/auth/login" className={styles.dropdownItem}>Log In</Link>
-                  <Link href="/api/auth/signup" className={styles.dropdownItem}>Sign Up</Link>
-                </>
-              )}
-              <Link href="/contact" className={styles.dropdownItem}>Contact</Link>
-            </div>
-          )}
+          {/* Cart Icon */}
+          <Link href="/cart" className="relative">
+            <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
+          </Link>
+
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-2 text-gray-900 dark:text-white"
+            >
+              <User className="w-6 h-6" />
+            </button>
+
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
+                <Link href="/order-history" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                  Order History
+                </Link>
+                <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                  Log Out
+                </Link>
+                <Link href="/contact" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                  Contact
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Dark Mode Toggle */}
+          <button onClick={handleThemeToggle} className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
+            {darkMode ? <Sun className="w-6 h-6 text-yellow-500" /> : <Moon className="w-6 h-6 text-gray-600" />}
+          </button>
         </div>
       </div>
     </header>
