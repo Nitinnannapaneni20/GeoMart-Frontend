@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { fetchProductsDataByLocation } from "@/services/Apis";
-import "@/styles/homepage.css";
 
 export default function HomePage() {
   const [data, setData] = useState({ categories: [], productTypes: [], products: [] });
@@ -100,6 +99,9 @@ export default function HomePage() {
           ) : (
             <p>Select filters and click search to see results.</p>
           )}
+          <div className="bg-blue-500 text-blue l-2">Tailwind is working!</div>
+          <div className="bg-blue-500 text-white p-4">Tailwind is working!</div>
+
         </div>
       </main>
 
