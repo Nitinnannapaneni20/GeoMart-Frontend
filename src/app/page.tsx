@@ -46,7 +46,7 @@ export default function HomePage() {
       <Header />
       <main className="bg-gray-100 dark:bg-gray-900 min-h-screen pt-20">
         {/* Banner Section */}
-        <div className="relative w-full h-64 bg-cover bg-center bg-[url('/your-banner-image.jpg')] flex items-center justify-center text-white text-2xl font-bold">
+        <div className="relative w-full h-80 bg-cover bg-center bg-[url('/your-banner-image.jpg')] flex items-center justify-center text-white text-2xl font-bold">
           <div className="bg-black/50 w-full h-full flex items-center justify-center">
             <p>🚀 Special Offers & Discounts Available!</p>
           </div>
