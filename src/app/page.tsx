@@ -18,14 +18,13 @@ export default function HomePage() {
       const locationId = 1;
       const result = await fetchProductsDataByLocation(locationId);
       const promotedProducts = await fetchPromotionProductsByLocation(locationId);
-      if(promotedProducts){
+      if (promotedProducts) {
         setPromotionProducts(promotedProducts.specials.map(special => special.Product));
       }
       if (result) {
         setData(result);
       }
     };
-
     fetchData();
   }, []);
 
@@ -56,7 +55,7 @@ export default function HomePage() {
     setSearchResults([]);
     setIsFiltering(false);
     const promotedProducts = await fetchPromotionProductsByLocation(1);
-    if(promotedProducts){
+    if (promotedProducts) {
       setPromotionProducts(promotedProducts.specials.map(special => special.Product));
     }
   };
@@ -64,60 +63,59 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main className="bg-gray-100 dark:bg-gray-900 min-h-screen pt-20">
+      <main className="bg-gray-50 dark:bg-gray-900 min-h-screen pt-20">
         {/* Banner Section */}
-        <div className="relative w-full h-80 bg-cover bg-center bg-[url('/your-banner-image.jpg')] flex items-center justify-center text-white text-2xl font-bold">
-          <div className="bg-black/50 w-full h-full flex items-center justify-center">
-            <p>🚀 Special Offers & Discounts Available!</p>
-          </div>
+        <div className="relative w-full h-80 bg-gradient-to-r from-blue-100 to-indigo-200 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white text-2xl font-bold shadow-md">
+          <p>🚀 Special Offers & Discounts Available!</p>
         </div>
 
         {/* Search Section */}
-        <div className="max-w-4xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">Find Your Product</h2>
+        <div className="max-w-4xl mx-auto mt-10 p-6 bg-gray-100 dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-none">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 text-center">Find Your Product</h2>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <select className="p-3 border rounded-md" value={selectedCategory} onChange={handleCategoryChange}>
+            <select className="p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500" value={selectedCategory} onChange={handleCategoryChange}>
               <option value="">Select Category</option>
               {data.categories.map((cat) => (
                 <option key={cat.ID} value={cat.ID}>{cat.Name}</option>
               ))}
             </select>
-            <select className="p-3 border rounded-md" value={selectedType} onChange={handleTypeChange} disabled={!selectedCategory}>
+
+            <select className="p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500" value={selectedType} onChange={handleTypeChange} disabled={!selectedCategory}>
               <option value="">Select Product Type</option>
               {filteredTypes.map((type) => (
                 <option key={type.ID} value={type.ID}>{type.Name}</option>
               ))}
             </select>
-            <button className="bg-indigo-600 text-white px-6 py-3 rounded-md" onClick={handleSearch}>Search</button>
-            <button className="bg-gray-600 text-white px-6 py-3 rounded-md" onClick={handleClearFilters}>Clear Filters</button>
+
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md" onClick={handleSearch}>Search</button>
+            <button className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg shadow-md" onClick={handleClearFilters}>Clear Filters</button>
           </div>
         </div>
 
         {/* Product Grid */}
         <div className="max-w-6xl mx-auto mt-10">
-
           {isFiltering ? (
             searchResults.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {searchResults.map((prod) => (
-                  <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4">
+                  <div key={prod.ID} className="bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-4 border border-gray-200 dark:border-none">
                     <img src={prod.ImageURL} alt={prod.Name} className="w-full h-40 object-cover rounded-lg" />
-                    <h4 className="mt-2 font-semibold">{prod.Name}</h4>
-                    <p className="text-gray-600">{prod.Brand}</p>
+                    <h4 className="mt-2 font-semibold text-gray-900 dark:text-white">{prod.Name}</h4>
+                    <p className="text-gray-600 dark:text-gray-400">{prod.Brand}</p>
                     <p className="text-indigo-600 font-bold">₹{prod.Cost}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center mt-6">No products found for the selected filters.</p>
+              <p className="text-center mt-6 text-gray-700 dark:text-gray-400">No products found for the selected filters.</p>
             )
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {promotionProducts.map((prod) => (
-                <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4">
+                <div key={prod.ID} className="bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-4 border border-gray-200 dark:border-none">
                   <img src={prod.ImageURL} alt={prod.Name} className="w-full h-40 object-cover rounded-lg" />
-                  <h4 className="mt-2 font-semibold">{prod.Name}</h4>
-                  <p className="text-gray-600">{prod.Brand}</p>
+                  <h4 className="mt-2 font-semibold text-gray-900 dark:text-white">{prod.Name}</h4>
+                  <p className="text-gray-600 dark:text-gray-400">{prod.Brand}</p>
                   <p className="text-indigo-600 font-bold">₹{prod.Cost}</p>
                 </div>
               ))}
@@ -125,9 +123,9 @@ export default function HomePage() {
           )}
         </div>
       </main>
-       <footer className="bg-gray-800 text-white text-center py-4">
-              &copy; 2025 GeoMart - Your trusted grocery partner.
-            </footer>
+      <footer className="bg-gray-800 text-white text-center py-4">
+        &copy; 2025 GeoMart - Your trusted grocery partner.
+      </footer>
     </>
   );
 }
