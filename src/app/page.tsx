@@ -63,10 +63,12 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main className="bg-gray-50 dark:bg-gray-900 min-h-screen pt-20">
+      <main className="bg-gray-300 dark:bg-gray-900 min-h-screen pt-20">
         {/* Banner Section */}
-        <div className="relative w-full h-80 bg-gradient-to-r from-blue-100 to-indigo-200 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white text-2xl font-bold shadow-md">
-          <p>🚀 Special Offers & Discounts Available!</p>
+        <div className="relative w-full h-80 bg-cover bg-center bg-[url('/your-banner-image.jpg')] flex items-center justify-center text-white text-2xl font-bold">
+          <div className="bg-black/50 w-full h-full flex items-center justify-center">
+            <p>🚀 Special Offers & Discounts Available!</p>
+          </div>
         </div>
 
         {/* Search Section */}
@@ -98,24 +100,24 @@ export default function HomePage() {
             searchResults.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {searchResults.map((prod) => (
-                  <div key={prod.ID} className="bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-4 border border-gray-200 dark:border-none">
+                  <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4">
                     <img src={prod.ImageURL} alt={prod.Name} className="w-full h-40 object-cover rounded-lg" />
-                    <h4 className="mt-2 font-semibold text-gray-900 dark:text-white">{prod.Name}</h4>
-                    <p className="text-gray-600 dark:text-gray-400">{prod.Brand}</p>
+                    <h4 className="mt-2 font-semibold">{prod.Name}</h4>
+                    <p className="text-gray-600">{prod.Brand}</p>
                     <p className="text-indigo-600 font-bold">₹{prod.Cost}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center mt-6 text-gray-700 dark:text-gray-400">No products found for the selected filters.</p>
+              <p className="text-center mt-6">No products found for the selected filters.</p>
             )
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {promotionProducts.map((prod) => (
-                <div key={prod.ID} className="bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-4 border border-gray-200 dark:border-none">
+                <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4">
                   <img src={prod.ImageURL} alt={prod.Name} className="w-full h-40 object-cover rounded-lg" />
-                  <h4 className="mt-2 font-semibold text-gray-900 dark:text-white">{prod.Name}</h4>
-                  <p className="text-gray-600 dark:text-gray-400">{prod.Brand}</p>
+                  <h4 className="mt-2 font-semibold">{prod.Name}</h4>
+                  <p className="text-gray-600">{prod.Brand}</p>
                   <p className="text-indigo-600 font-bold">₹{prod.Cost}</p>
                 </div>
               ))}
