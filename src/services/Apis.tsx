@@ -13,3 +13,17 @@ export const fetchProductsDataByLocation = async (locationId) => {
     return null;
   }
 };
+
+export const fetchPromotionProductsByLocation = async (locationId) => {
+    try{
+        const response = await fetch(`${API_BASE_URL}/special-products-data?location_id=${locationId}`);
+        if(!response.ok){
+            throw new Error(`Error: ${response.status}`);
+        }
+        return await response.json();
+    }
+    catch (error) {
+         console.error("Failed to fetch products data:", error);
+         return null;
+    }
+}
