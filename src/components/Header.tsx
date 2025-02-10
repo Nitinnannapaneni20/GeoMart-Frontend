@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Sun, Moon, ShoppingCart, User } from "lucide-react";
 import useUser from "../hooks/useUser.ts";
 
