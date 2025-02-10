@@ -3,32 +3,72 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { fetchProductsDataByLocation, fetchPromotionProductsByLocation } from "@/services/Apis";
 
+// Define interfaces for our data structures
+interface Product {
+  ID: number;
+  Name: string;
+  Brand: string;
+  Cost: number;
+  ImageURL: string;
+  TypeID: number;
+}
+
+interface Category {
+  ID: number;
+  Name: string;
+}
+
+interface ProductType {
+  ID: number;
+  Name: string;
+  CategoryID: number;
+}
+
+interface DataState {
+  categories: Category[];
+  productTypes: ProductType[];
+  products: Product[];
+}
+
+interface PromotionProduct {
+  Product: Product;
+}
+
+interface PromotionResponse {
+  specials: PromotionProduct[];
+}
+
 export default function HomePage() {
-  const [data, setData] = useState({ categories: [], productTypes: [], products: [] });
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-  const [filteredTypes, setFilteredTypes] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [promotionProducts, setPromotionProducts] = useState([]);
-  const [isFiltering, setIsFiltering] = useState(false);
+  const [data, setData] = useState<DataState>({ categories: [], productTypes: [], products: [] });
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string>("");
+  const [filteredTypes, setFilteredTypes] = useState<ProductType[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [promotionProducts, setPromotionProducts] = useState<Product[]>([]);
+  const [isFiltering, setIsFiltering] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
       const locationId = 1;
-      const result = await fetchProductsDataByLocation(locationId);
-      const promotedProducts = await fetchPromotionProductsByLocation(locationId);
-      if (promotedProducts) {
-        setPromotionProducts(promotedProducts.specials.map(special => special.Product));
-      }
-      if (result) {
-        setData(result);
+      try {
+        const result = await fetchProductsDataByLocation(locationId);
+        const promotedProducts = await fetchPromotionProductsByLocation(locationId) as PromotionResponse;
+
+        if (promotedProducts) {
+          setPromotionProducts(promotedProducts.specials.map(special => special.Product));
+        }
+        if (result) {
+          setData(result as DataState);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
     fetchData();
   }, []);
 
-  const handleCategoryChange = (e) => {
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const categoryId = parseInt(e.target.value);
     setSelectedCategory(categoryId.toString());
     setFilteredTypes(data.productTypes.filter((type) => type.CategoryID === categoryId));
@@ -36,7 +76,7 @@ export default function HomePage() {
     setSelectedType("");
   };
 
-  const handleTypeChange = (e) => {
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const typeId = parseInt(e.target.value);
     setSelectedType(typeId.toString());
     setFilteredProducts(data.products.filter((product) => product.TypeID === typeId));
@@ -54,9 +94,13 @@ export default function HomePage() {
     setFilteredProducts([]);
     setSearchResults([]);
     setIsFiltering(false);
-    const promotedProducts = await fetchPromotionProductsByLocation(1);
-    if (promotedProducts) {
-      setPromotionProducts(promotedProducts.specials.map(special => special.Product));
+    try {
+      const promotedProducts = await fetchPromotionProductsByLocation(1) as PromotionResponse;
+      if (promotedProducts) {
+        setPromotionProducts(promotedProducts.specials.map(special => special.Product));
+      }
+    } catch (error) {
+      console.error('Error fetching promotion products:', error);
     }
   };
 

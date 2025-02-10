@@ -1,9 +1,9 @@
-name: Deploy Frontend to EC2
+name: Deploy to EC2
 
 on:
   push:
     branches:
-      - main
+      - main  # Runs when you push to the main branch
 
 jobs:
   deploy:
@@ -13,36 +13,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Run ESLint
-        run: npm run lint
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t nitinchowdarynannapaneni/geomart-frontend:latest .
+          docker push nitinchowdarynannapaneni/geomart-frontend:latest
 
       - name: Deploy to EC2
-        env:
-          EC2_HOST: 13.40.3.183
-          EC2_USER: ubuntu
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-
-          # Copy project files to EC2 instance
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r . $EC2_USER@$EC2_HOST:/home/ubuntu/GeoMart-Frontend
-
-          # Connect to EC2 and restart the frontend application
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            cd /home/ubuntu/GeoMart-Frontend
-            npm install
-            npm run build
-            pm2 restart all || pm2 start npm --name "geomart-frontend" -- start
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@13.40.3.183 << 'EOF'
+            docker pull nitinchowdarynannapaneni/geomart-frontend:latest
+            docker stop geomart-frontend || true
+            docker rm geomart-frontend || true
+            docker run -d -p 80:3000 --name geomart-frontend nitinchowdarynannapaneni/geomart-frontend:latest
           EOF
-
-          # Remove the private key for security
           rm -f private_key.pem
