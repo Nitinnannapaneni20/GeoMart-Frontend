@@ -1,0 +1,40 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main  # Change this if you're using another branch
+
+jobs:
+  lint-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Deploy to EC2
+        if: success()
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/GeoMart-Frontend
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart frontend || pm2 start "npm start" --name frontend
