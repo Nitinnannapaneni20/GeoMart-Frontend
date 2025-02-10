@@ -3,15 +3,26 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Sun, Moon, ShoppingCart, User } from "lucide-react";
-import useUser from "../hooks/useUser.ts";
+import useUser from "../hooks/useUser";
 
-const locations = ["Leeds", "Huddersfield"];
+// Define interfaces for type safety
+interface UserData {
+  nickname?: string;
+}
+
+interface UseUserReturn {
+  user: UserData | null;
+  isAuthenticated: boolean;
+}
+
+const locations = ["Leeds", "Huddersfield"] as const;
+type LocationType = typeof locations[number];
 
 const Header = () => {
-  const { user, isAuthenticated } = useUser();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState("Leeds");
-  const [darkMode, setDarkMode] = useState(false);
+  const { user, isAuthenticated } = useUser() as UseUserReturn;
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const [selectedLocation, setSelectedLocation] = useState<LocationType>("Leeds");
+  const [darkMode, setDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme");
@@ -23,8 +34,8 @@ const Header = () => {
     }
 
     const storedLocation = localStorage.getItem("userLocation");
-    if (storedLocation && locations.includes(storedLocation)) {
-      setSelectedLocation(storedLocation);
+    if (storedLocation && locations.includes(storedLocation as LocationType)) {
+      setSelectedLocation(storedLocation as LocationType);
     }
   }, []);
 
@@ -40,7 +51,7 @@ const Header = () => {
   };
 
   const handleLocationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocation = event.target.value;
+    const newLocation = event.target.value as LocationType;
     setSelectedLocation(newLocation);
     localStorage.setItem("userLocation", newLocation);
   };
