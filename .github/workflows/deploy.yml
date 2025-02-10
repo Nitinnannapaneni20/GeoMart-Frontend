@@ -3,10 +3,10 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - main  # Change this if you're using another branch
+      - main
 
 jobs:
-  lint-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,15 +26,23 @@ jobs:
         run: npm run lint
 
       - name: Deploy to EC2
-        if: success()
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/GeoMart-Frontend
-            git pull origin main
+        env:
+          EC2_HOST: 13.40.3.183
+          EC2_USER: ubuntu
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Copy project files to EC2 instance
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r . $EC2_USER@$EC2_HOST:/home/ubuntu/GeoMart-Frontend
+
+          # Connect to EC2 and restart the frontend application
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+            cd /home/ubuntu/GeoMart-Frontend
             npm install
             npm run build
-            pm2 restart frontend || pm2 start "npm start" --name frontend
+            pm2 restart all || pm2 start npm --name "geomart-frontend" -- start
+          EOF
+
+          # Remove the private key for security
+          rm -f private_key.pem
