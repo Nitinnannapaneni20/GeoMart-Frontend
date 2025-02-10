@@ -33,7 +33,7 @@ interface PromotionResponse {
   specials: PromotionProduct[];
 }
 
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Fetch product data by location_id
 export const fetchProductsDataByLocation = async (locationId: number): Promise<ProductsData | null> => {

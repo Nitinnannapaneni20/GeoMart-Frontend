@@ -19,8 +19,5 @@ RUN npm run build
 # Expose the default Next.js port
 EXPOSE 3000
 
-# Set the NODE_ENV to production
-ENV NODE_ENV=production
-
-# Start the Next.js application
-CMD ["npx", "next", "start"]
+# Ensure environment variables are loaded at runtime
+CMD ["sh", "-c", "npx next start"]
