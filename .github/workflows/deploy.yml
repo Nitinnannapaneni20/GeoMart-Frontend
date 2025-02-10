@@ -25,7 +25,8 @@ jobs:
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@13.40.3.183 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            docker login -u "nitinchowdarynannapaneni" -p "${{ secrets.DOCKER_HUB_PASSWORD }}"
             docker pull nitinchowdarynannapaneni/geomart-frontend:latest
             docker stop geomart-frontend || true
             docker rm geomart-frontend || true
