@@ -111,7 +111,7 @@ export default function HomePage() {
         {/* Banner Section */}
         <div className="relative w-full h-80 bg-cover bg-center bg-[url('/your-banner-image.jpg')] flex items-center justify-center text-white text-2xl font-bold">
           <div className="bg-black/50 w-full h-full flex items-center justify-center">
-            <p>🚀 Special Offers & Discounts Available!</p>
+            <p>🚀 Special Offers & Discounts Available !</p>
           </div>
         </div>
 
