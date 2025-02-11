@@ -1,17 +1,12 @@
-
 import { handleAuth } from '@auth0/nextjs-auth0';
 
 export default handleAuth({
-  async login(req, res) {
+  login: async (req, res) => {
     try {
-      await handleAuth({
-        authorizationParams: {
-          audience: process.env.AUTH0_AUDIENCE,
-          scope: 'openid profile email',
-        }
-      })(req, res);
+      return await handleAuth()(req, res);
     } catch (error) {
-      res.status(error.status || 500).end(error.message);
+      console.error("Auth0 Login Error:", error);
+      res.status(error.status || 500).json({ error: error.message });
     }
   }
 });
