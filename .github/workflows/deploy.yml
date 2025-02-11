@@ -30,12 +30,19 @@ jobs:
 
             # Clean up unused Docker resources to free up space
             docker system prune -af || true
-            docker system prune -af || true
+            docker volume prune -f || true
 
             # Log in securely to Docker Hub
             echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "nitinchowdarynannapaneni" --password-stdin
 
-            # Update environment variables
+            # Pull the latest image first (before stopping the old container)
+            docker pull nitinchowdarynannapaneni/geomart-frontend:latest
+
+            # Stop and remove any existing container
+            docker stop geomart-frontend || true
+            docker rm geomart-frontend || true
+
+            # ✅ Ensure .env file is properly formatted
             cat <<EOT > /home/ubuntu/GeoMart-Frontend/.env
             AUTH0_SECRET=${{ secrets.AUTH0_SECRET }}
             AUTH0_BASE_URL=${{ secrets.AUTH0_BASE_URL }}
