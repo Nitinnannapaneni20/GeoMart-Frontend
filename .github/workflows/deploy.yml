@@ -30,6 +30,7 @@ jobs:
 
             # Clean up unused Docker resources to free up space
             docker system prune -af || true
+            docker system prune -af || true
 
             # Log in securely to Docker Hub
             echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "nitinchowdarynannapaneni" --password-stdin
