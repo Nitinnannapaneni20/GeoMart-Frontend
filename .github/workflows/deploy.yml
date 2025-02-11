@@ -26,8 +26,15 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            docker login -u "nitinchowdarynannapaneni" -p "${{ secrets.DOCKER_HUB_PASSWORD }}"
+            set -e  # Exit if any command fails
 
+            # Clean up unused Docker resources to free up space
+            docker system prune -af || true
+
+            # Log in securely to Docker Hub
+            echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "nitinchowdarynannapaneni" --password-stdin
+
+            # Update environment variables
             echo "AUTH0_SECRET=${{ secrets.AUTH0_SECRET }}" > /home/ubuntu/GeoMart-Frontend/.env
             echo "AUTH0_BASE_URL=${{ secrets.AUTH0_BASE_URL }}" >> /home/ubuntu/GeoMart-Frontend/.env
             echo "AUTH0_ISSUER_BASE_URL=${{ secrets.AUTH0_ISSUER_BASE_URL }}" >> /home/ubuntu/GeoMart-Frontend/.env
@@ -36,10 +43,23 @@ jobs:
             echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> /home/ubuntu/GeoMart-Frontend/.env
             echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> /home/ubuntu/GeoMart-Frontend/.env
 
-            # Deploy frontend container with .env
-            docker pull nitinchowdarynannapaneni/geomart-frontend:latest
+            # Remove any existing container before starting a new one
             docker stop geomart-frontend || true
             docker rm geomart-frontend || true
+
+            # Pull the latest image
+            docker pull nitinchowdarynannapaneni/geomart-frontend:latest
+
+            # Run the container with environment variables
             docker run --env-file /home/ubuntu/GeoMart-Frontend/.env -d -p 80:3000 --name geomart-frontend nitinchowdarynannapaneni/geomart-frontend:latest
+
+            # Wait for the container to start
+            sleep 10
+
+            # Check if the container is running; fail if not
+            if ! docker ps | grep -q "geomart-frontend"; then
+              echo "Deployment failed! Container is not running."
+              exit 1
+            fi
           EOF
           rm -f private_key.pem
