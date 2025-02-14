@@ -170,7 +170,7 @@ export default function HomePage() {
         </div>
       </main>
       <footer className="bg-gray-800 text-white text-center py-4">
-        &copy; 2025 GeoMart - Your trusted grocery partner.
+        &copy; @2025 GeoMart - Your trusted grocery partner.
       </footer>
     </>
   );
