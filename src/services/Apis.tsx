@@ -33,7 +33,7 @@ interface PromotionResponse {
   specials: PromotionProduct[];
 }
 
-const API_BASE_URL = 'http://18.130.34.218:8080/api';
+const API_BASE_URL = 'https://api.geomart.co.uk/api';
 
 // Fetch product data by location_id
 export const fetchProductsDataByLocation = async (locationId: number): Promise<ProductsData | null> => {
