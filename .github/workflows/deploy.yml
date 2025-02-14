@@ -51,7 +51,7 @@ jobs:
             docker pull nitinchowdarynannapaneni/geomart-frontend:latest
 
             # Run the container with environment variables
-            docker run --env-file /home/ubuntu/GeoMart-Frontend/.env -d -p 80:3000 --name geomart-frontend nitinchowdarynannapaneni/geomart-frontend:latest
+            docker run --env-file /home/ubuntu/GeoMart-Frontend/.env -d -p 8080:3000 --name geomart-frontend nitinchowdarynannapaneni/geomart-frontend:latest  # CHANGED to 8080:3000
 
             # Wait for the container to start
             sleep 10
