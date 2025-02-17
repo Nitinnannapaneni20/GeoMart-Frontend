@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Header from "@/components/Header";
 import { fetchProductsDataByLocation, fetchPromotionProductsByLocation } from "@/services/Apis";
-import { ShoppingCart, MapPin, Phone, Mail, Facebook, Twitter, Instagram, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, ChevronLeft, ChevronRight } from "lucide-react";
 
 // Define interfaces for our data structures
 interface Product {
@@ -56,7 +57,7 @@ const ImageCarousel = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [images.length]); // Added images.length as dependency
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) =>
@@ -82,11 +83,14 @@ const ImageCarousel = () => {
             className="w-full h-full flex-shrink-0"
             style={{ flex: '0 0 100%' }}
           >
-            <img
-              src={image}
-              alt={`Slide ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={image}
+                alt={`Slide ${index + 1}`}
+                fill
+                className="object-cover"
+              />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50 flex items-center justify-center">
               <div className="text-center">
                 <h1 className="text-5xl font-bold text-white mb-4">Special Offer {index + 1}</h1>
@@ -192,12 +196,11 @@ export default function HomePage() {
     }
   };
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow bg-gray-100 dark:bg-gray-900 pt-16">
-        {/* Carousel Section */}
-        <ImageCarousel />
+   return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow bg-gray-100 dark:bg-gray-900 pt-16">
+          <ImageCarousel />
 
         {/* Search Section - Now below carousel with spacing */}
         <div className="max-w-5xl mx-auto mt-16 px-4">
@@ -243,15 +246,43 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Product Grid Section */}
-        <div className="max-w-7xl mx-auto mt-16 px-4 mb-16">
-          {isFiltering ? (
-            searchResults.length > 0 ? (
+          {/* Product Grid Section */}
+          <div className="max-w-7xl mx-auto mt-16 px-4 mb-16">
+            {isFiltering ? (
+              searchResults.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {searchResults.map((prod) => (
+                    <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                      <div className="relative pb-[56.25%]">
+                        <Image
+                          src={prod.ImageURL}
+                          alt={prod.Name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="p-6">
+                        <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{prod.Name}</h4>
+                        <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">{prod.Brand}</p>
+                        <p className="text-2xl font-bold text-indigo-600">₹{prod.Cost}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-xl text-gray-600 dark:text-gray-400 mt-8">No products found for the selected filters.</p>
+              )
+            ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {searchResults.map((prod) => (
+                {promotionProducts.map((prod) => (
                   <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                     <div className="relative pb-[56.25%]">
-                      <img src={prod.ImageURL} alt={prod.Name} className="absolute inset-0 w-full h-full object-cover" />
+                      <Image
+                        src={prod.ImageURL}
+                        alt={prod.Name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <div className="p-6">
                       <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{prod.Name}</h4>
@@ -261,27 +292,9 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className="text-center text-xl text-gray-600 dark:text-gray-400 mt-8">No products found for the selected filters.</p>
-            )
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {promotionProducts.map((prod) => (
-                <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
-                  <div className="relative pb-[56.25%]">
-                    <img src={prod.ImageURL} alt={prod.Name} className="absolute inset-0 w-full h-full object-cover" />
-                  </div>
-                  <div className="p-6">
-                    <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{prod.Name}</h4>
-                    <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">{prod.Brand}</p>
-                    <p className="text-2xl font-bold text-indigo-600">₹{prod.Cost}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
+            )}
+          </div>
+        </main>
 
       {/* Footer Section */}
       <footer className="bg-gray-800 text-white py-12">
