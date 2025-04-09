@@ -99,15 +99,15 @@ const Header = () => {
                   <>
                     <span className="block px-4 py-2 text-gray-700 dark:text-white">Welcome, {user?.nickname || "User"}</span>
                     <Link href="/order-history" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Order History</Link>
+                    <Link href="/contact" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link>
                     <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Log Out</Link>
                   </>
                 ) : (
                   <>
-                    <Link href="/api/auth/login" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Log In</Link>
-                    <Link href="/api/auth/signup" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Sign Up</Link>
+                    <Link href="/api/auth/login" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Log In / Sign Up</Link>
+                    <Link href="/contact" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link>
                   </>
                 )}
-                <Link href="/contact" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link>
               </div>
             )}
           </div>
