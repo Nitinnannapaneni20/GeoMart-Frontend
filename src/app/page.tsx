@@ -314,17 +314,39 @@ export default function HomePage() {
             <div>
               <h3 className="text-xl font-bold mb-4">Contact Us</h3>
               <div className="space-y-2">
+                {/* Address - Opens in Google Maps */}
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
-                  <p>123 Grocery Street, Market City</p>
+                  <a
+                    href="https://www.google.com/maps?q=123+Grocery+Street,+Market+City"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-indigo-400 transition-colors"
+                  >
+                    123 Grocery Street, Market City
+                  </a>
                 </div>
+
+                {/* Phone - Opens dialer */}
                 <div className="flex items-center gap-2">
                   <Phone className="w-5 h-5" />
-                  <p>+1 234 567 8900</p>
+                  <a
+                    href="tel:+12345678900"
+                    className="hover:text-indigo-400 transition-colors"
+                  >
+                    +1 234 567 8900
+                  </a>
                 </div>
+
+                {/* Email - Opens default mail client */}
                 <div className="flex items-center gap-2">
                   <Mail className="w-5 h-5" />
-                  <p>support@geomart.com</p>
+                  <a
+                    href="mailto:support@geomart.com"
+                    className="hover:text-indigo-400 transition-colors"
+                  >
+                    support@geomart.com
+                  </a>
                 </div>
               </div>
             </div>
