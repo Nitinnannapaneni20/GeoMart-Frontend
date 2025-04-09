@@ -98,7 +98,7 @@ const Header = () => {
                 {isAuthenticated ? (
                   <>
                     <span className="block px-4 py-2 text-gray-700 dark:text-white">Welcome, {user?.nickname || "User"}</span>
-                    <Link href="/order-history" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Order History</Link>
+                    <Link href="/orderHistory" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Order History</Link>
                     <Link href="/contact" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link>
                     <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Log Out</Link>
                   </>
