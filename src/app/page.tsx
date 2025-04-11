@@ -4,6 +4,7 @@ import Image from "next/image";
 import Header from "@/components/Header";
 import { fetchProductsDataByLocation, fetchPromotionProductsByLocation } from "@/services/Apis";
 import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, ChevronLeft, ChevronRight } from "lucide-react";
+import { useCart } from "./CartContext"; // Import the CartContext hook; adjust path if needed
 
 // Define interfaces for our data structures
 interface Product {
@@ -44,15 +45,11 @@ const ImageCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 2 ? 0 : prevIndex + 1
-    );
+    setCurrentIndex((prevIndex) => (prevIndex === 2 ? 0 : prevIndex + 1));
   };
 
   const goToPrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? 2 : prevIndex - 1
-    );
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? 2 : prevIndex - 1));
   };
 
   return (
@@ -142,7 +139,12 @@ const ImageCarousel = () => {
 };
 
 export default function HomePage() {
-  const [data, setData] = useState<DataState>({ categories: [], productTypes: [], products: [] });
+  const { addToCart } = useCart(); // Access our cart context
+  const [data, setData] = useState<DataState>({
+    categories: [],
+    productTypes: [],
+    products: [],
+  });
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [filteredTypes, setFilteredTypes] = useState<ProductType[]>([]);
@@ -156,16 +158,20 @@ export default function HomePage() {
       const locationId = 1;
       try {
         const result = await fetchProductsDataByLocation(locationId);
-        const promotedProducts = await fetchPromotionProductsByLocation(locationId) as PromotionResponse;
+        const promotedProducts = (await fetchPromotionProductsByLocation(
+          locationId
+        )) as PromotionResponse;
 
         if (promotedProducts) {
-          setPromotionProducts(promotedProducts.specials.map(special => special.Product));
+          setPromotionProducts(
+            promotedProducts.specials.map((special) => special.Product)
+          );
         }
         if (result) {
           setData(result as DataState);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
     fetchData();
@@ -174,7 +180,9 @@ export default function HomePage() {
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const categoryId = parseInt(e.target.value);
     setSelectedCategory(categoryId.toString());
-    setFilteredTypes(data.productTypes.filter((type) => type.CategoryID === categoryId));
+    setFilteredTypes(
+      data.productTypes.filter((type) => type.CategoryID === categoryId)
+    );
     setFilteredProducts([]);
     setSelectedType("");
   };
@@ -182,7 +190,9 @@ export default function HomePage() {
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const typeId = parseInt(e.target.value);
     setSelectedType(typeId.toString());
-    setFilteredProducts(data.products.filter((product) => product.TypeID === typeId));
+    setFilteredProducts(
+      data.products.filter((product) => product.TypeID === typeId)
+    );
   };
 
   const handleSearch = () => {
@@ -198,25 +208,43 @@ export default function HomePage() {
     setSearchResults([]);
     setIsFiltering(false);
     try {
-      const promotedProducts = await fetchPromotionProductsByLocation(1) as PromotionResponse;
+      const promotedProducts = (await fetchPromotionProductsByLocation(
+        1
+      )) as PromotionResponse;
       if (promotedProducts) {
-        setPromotionProducts(promotedProducts.specials.map(special => special.Product));
+        setPromotionProducts(
+          promotedProducts.specials.map((special) => special.Product)
+        );
       }
     } catch (error) {
-      console.error('Error fetching promotion products:', error);
+      console.error("Error fetching promotion products:", error);
     }
   };
 
-   return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow bg-gray-100 dark:bg-gray-900 pt-16">
-          <ImageCarousel />
+  // Helper to handle "Add to Cart" button click
+  const handleAddToCart = (prod: Product) => {
+        console.log("Adding to cart:", prod);
+    addToCart({
+      id: prod.ID,
+      name: prod.Name,
+      brand: prod.Brand,
+      price: prod.Cost,
+      imageUrl: prod.ImageURL,
+    });
+  };
 
-        {/* Search Section - Now below carousel with spacing */}
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow bg-gray-100 dark:bg-gray-900 pt-16">
+        <ImageCarousel />
+
+        {/* Search Section */}
         <div className="max-w-5xl mx-auto mt-16 px-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">Find Your Product</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              Find Your Product
+            </h2>
             <div className="flex flex-col md:flex-row gap-6 justify-center">
               <select
                 className="p-4 text-lg border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
@@ -225,7 +253,9 @@ export default function HomePage() {
               >
                 <option value="">Select Category</option>
                 {data.categories.map((cat) => (
-                  <option key={cat.ID} value={cat.ID}>{cat.Name}</option>
+                  <option key={cat.ID} value={cat.ID}>
+                    {cat.Name}
+                  </option>
                 ))}
               </select>
 
@@ -237,7 +267,9 @@ export default function HomePage() {
               >
                 <option value="">Select Product Type</option>
                 {filteredTypes.map((type) => (
-                  <option key={type.ID} value={type.ID}>{type.Name}</option>
+                  <option key={type.ID} value={type.ID}>
+                    {type.Name}
+                  </option>
                 ))}
               </select>
 
@@ -257,36 +289,16 @@ export default function HomePage() {
           </div>
         </div>
 
-          {/* Product Grid Section */}
-          <div className="max-w-7xl mx-auto mt-16 px-4 mb-16">
-            {isFiltering ? (
-              searchResults.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {searchResults.map((prod) => (
-                    <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
-                      <div className="relative pb-[56.25%]">
-                        <Image
-                          src={prod.ImageURL}
-                          alt={prod.Name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="p-6">
-                        <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{prod.Name}</h4>
-                        <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">{prod.Brand}</p>
-                        <p className="text-2xl font-bold text-indigo-600">₹{prod.Cost}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-xl text-gray-600 dark:text-gray-400 mt-8">No products found for the selected filters.</p>
-              )
-            ) : (
+        {/* Product Grid Section */}
+        <div className="max-w-7xl mx-auto mt-16 px-4 mb-16">
+          {isFiltering ? (
+            searchResults.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {promotionProducts.map((prod) => (
-                  <div key={prod.ID} className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                {searchResults.map((prod) => (
+                  <div
+                    key={prod.ID}
+                    className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+                  >
                     <div className="relative pb-[56.25%]">
                       <Image
                         src={prod.ImageURL}
@@ -296,16 +308,68 @@ export default function HomePage() {
                       />
                     </div>
                     <div className="p-6">
-                      <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{prod.Name}</h4>
-                      <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">{prod.Brand}</p>
-                      <p className="text-2xl font-bold text-indigo-600">₹{prod.Cost}</p>
+                      <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
+                        {prod.Name}
+                      </h4>
+                      <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">
+                        {prod.Brand}
+                      </p>
+                      <p className="text-2xl font-bold text-indigo-600">
+                        ₹{prod.Cost}
+                      </p>
+                      <button
+                        onClick={() => handleAddToCart(prod)}
+                        className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+                      >
+                        Add to Cart
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        </main>
+            ) : (
+              <p className="text-center text-xl text-gray-600 dark:text-gray-400 mt-8">
+                No products found for the selected filters.
+              </p>
+            )
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {promotionProducts.map((prod) => (
+                <div
+                  key={prod.ID}
+                  className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="relative pb-[56.25%]">
+                    <Image
+                      src={prod.ImageURL}
+                      alt={prod.Name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
+                      {prod.Name}
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">
+                      {prod.Brand}
+                    </p>
+                    <p className="text-2xl font-bold text-indigo-600">
+                      ₹{prod.Cost}
+                    </p>
+                    <button
+                      onClick={() => handleAddToCart(prod)}
+                      className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
 
       {/* Footer Section */}
       <footer className="bg-gray-800 text-white py-12">
@@ -314,7 +378,6 @@ export default function HomePage() {
             <div>
               <h3 className="text-xl font-bold mb-4">Contact Us</h3>
               <div className="space-y-2">
-                {/* Address - Opens in Google Maps */}
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
                   <a
@@ -326,8 +389,6 @@ export default function HomePage() {
                     123 Grocery Street, Market City
                   </a>
                 </div>
-
-                {/* Phone - Opens dialer */}
                 <div className="flex items-center gap-2">
                   <Phone className="w-5 h-5" />
                   <a
@@ -337,8 +398,6 @@ export default function HomePage() {
                     +1 234 567 8900
                   </a>
                 </div>
-
-                {/* Email - Opens default mail client */}
                 <div className="flex items-center gap-2">
                   <Mail className="w-5 h-5" />
                   <a
@@ -350,17 +409,43 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-
             <div>
               <h3 className="text-xl font-bold mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">Terms & Conditions</a></li>
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">FAQs</a></li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-indigo-400 transition-colors"
+                  >
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-indigo-400 transition-colors"
+                  >
+                    Terms & Conditions
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-indigo-400 transition-colors"
+                  >
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-indigo-400 transition-colors"
+                  >
+                    FAQs
+                  </a>
+                </li>
               </ul>
             </div>
-
             <div>
               <h3 className="text-xl font-bold mb-4">Follow Us</h3>
               <div className="flex space-x-4">
@@ -376,9 +461,11 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-
           <div className="mt-8 pt-8 border-t border-gray-800 text-center">
-            <p>&copy; 2025 GeoMart - Your trusted grocery partner. All rights reserved.</p>
+            <p>
+              &copy; 2025 GeoMart - Your trusted grocery partner. All rights
+              reserved.
+            </p>
           </div>
         </div>
       </footer>
