@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Header from "@/components/Header";
+import { User } from "lucide-react";
 
 interface ProfileFormData {
   name: string;
@@ -15,14 +16,14 @@ interface ProfileFormData {
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState<ProfileFormData>({
-    name: "",
-    email: "",
-    phone: "",
-    addressLine1: "",
+    name: "John Doe",
+    email: "john@example.com",
+    phone: "+1 555-123-4567",
+    addressLine1: "123 Main St",
     addressLine2: "",
-    city: "",
-    state: "",
-    zip: "",
+    city: "Leeds",
+    state: "West Yorkshire",
+    zip: "LS1 1AA",
   });
 
   const handleChange = (
@@ -33,30 +34,35 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    try {
-      // await fetch("/api/profile/update", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // });
-
-      alert("Profile saved (mock). In a real app, you'd call an API here.");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save profile.");
-    }
+    // await fetch("/api/profile/update", { ... })
+    alert("Profile saved (mock). In a real app, you’d call an API here.");
   };
 
   return (
     <>
       <Header />
-      <main className="min-h-screen pt-20 bg-gray-100 dark:bg-gray-900">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-            Your Profile
-          </h1>
+      <main className="min-h-screen bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:via-black dark:to-gray-900 pt-20 pb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8">
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          {/* Profile Header */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-end sm:justify-between mt-6 mb-8">
+            <div className="flex items-center">
+              {/* Avatar with an icon instead of an image */}
+              <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-indigo-600 shadow-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                <User className="w-16 h-16 text-gray-600 dark:text-gray-300" />
+              </div>
+              <div className="ml-6">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white">
+                  Your Profile
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">
+                  Manage your personal details here
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 dark:bg-opacity-80 rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Name */}
               <div>
@@ -72,7 +78,9 @@ export default function ProfilePage() {
                   id="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
                   placeholder="John Doe"
                 />
               </div>
@@ -91,7 +99,9 @@ export default function ProfilePage() {
                   id="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
                   placeholder="john@example.com"
                 />
               </div>
@@ -110,7 +120,9 @@ export default function ProfilePage() {
                   id="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
                   placeholder="+1 555-123-4567"
                 />
               </div>
@@ -129,7 +141,9 @@ export default function ProfilePage() {
                   id="addressLine1"
                   value={formData.addressLine1}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
                   placeholder="123 Main St"
                 />
               </div>
@@ -148,8 +162,10 @@ export default function ProfilePage() {
                   id="addressLine2"
                   value={formData.addressLine2}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="Apartment, suite, unit, building, floor, etc."
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
+                  placeholder="Apartment, suite, unit, etc."
                 />
               </div>
 
@@ -167,7 +183,9 @@ export default function ProfilePage() {
                   id="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
                   placeholder="Leeds"
                 />
               </div>
@@ -186,7 +204,9 @@ export default function ProfilePage() {
                   id="state"
                   value={formData.state}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
                   placeholder="West Yorkshire"
                 />
               </div>
@@ -205,7 +225,9 @@ export default function ProfilePage() {
                   id="zip"
                   value={formData.zip}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                             transition"
                   placeholder="LS1 1AA"
                 />
               </div>
@@ -213,7 +235,9 @@ export default function ProfilePage() {
 
             <button
               onClick={handleSave}
-              className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg text-lg font-semibold transition"
+              className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg text-lg font-semibold transition
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900
+                         shadow-md hover:shadow-xl"
             >
               Save Profile
             </button>
