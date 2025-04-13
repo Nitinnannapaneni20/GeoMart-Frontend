@@ -4,6 +4,7 @@ import React, {
   useContext,
   useState,
   ReactNode,
+  useEffect
 } from "react";
 
 interface CartItem {
@@ -32,18 +33,29 @@ const CartContext = createContext<CartContextType>({
 });
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (typeof window !== "undefined") {
+      const storedCart = localStorage.getItem("cart");
+      return storedCart ? JSON.parse(storedCart) : [];
+    }
+    return [];
+  });
+
+  // Persist cart to local storage whenever it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+    }
+  }, [cartItems]);
 
   function addToCart(item: Omit<CartItem, "quantity">, quantity = 1) {
     setCartItems((prev) => {
       const existingIndex = prev.findIndex((i) => i.id === item.id);
       if (existingIndex !== -1) {
-        // If the item is already in cart, just add quantity
         const updatedCart = [...prev];
         updatedCart[existingIndex].quantity += quantity;
         return updatedCart;
       } else {
-        // Otherwise, add as new cart entry
         return [...prev, { ...item, quantity }];
       }
     });
@@ -58,7 +70,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       prev.map((item) => {
         if (item.id === id) {
           const newQuantity = item.quantity + amount;
-          // Don’t let quantity drop below 1
           return { ...item, quantity: Math.max(1, newQuantity) };
         }
         return item;
