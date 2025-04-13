@@ -20,7 +20,7 @@ export default function Cart() {
       <Header />
       <main className="min-h-screen pt-20 px-4 sm:px-8 bg-gray-100 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mt-8 mb-8">
             Your Cart
           </h2>
 
@@ -43,7 +43,7 @@ export default function Cart() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
               {/* Left: Cart Items */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-2 space-y-6 mb-8">
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
