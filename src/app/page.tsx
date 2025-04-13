@@ -100,7 +100,7 @@ const ImageCarousel = () => {
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <div className="text-center">
               <h1 className="text-5xl font-bold text-white mb-4">Special Offer 2</h1>
-              <p className="text-2xl text-white/90">Daily Deals You Can't Miss!</p>
+              <p className="text-2xl text-white/90">Daily Deals You Can`&apost Miss!</p>
             </div>
           </div>
         </div>
