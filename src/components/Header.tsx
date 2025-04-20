@@ -8,6 +8,11 @@ import useUser from "../hooks/useUser";
 // Define interfaces for type safety
 interface UserData {
   nickname?: string;
+  given_name?: string;
+  family_name?: string;
+  email?: string;
+  sub?: string;
+  picture?: string;
 }
 
 interface UseUserReturn {
@@ -38,6 +43,22 @@ const Header = () => {
       setSelectedLocation(storedLocation as LocationType);
     }
   }, []);
+
+  // ✅ Auth0 User Data to Local Storage
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const userData = {
+        given_name: user.given_name,
+        family_name: user.family_name,
+        email: user.email,
+        sub: user.sub,
+        picture: user.picture,
+      };
+      localStorage.setItem("auth0User", JSON.stringify(userData));
+    } else {
+      localStorage.removeItem("auth0User");
+    }
+  }, [isAuthenticated, user]);
 
   const handleThemeToggle = () => {
     setDarkMode(!darkMode);
@@ -90,22 +111,34 @@ const Header = () => {
           {/* Profile Dropdown */}
           <div className="relative">
             <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center gap-2 text-gray-900 dark:text-white">
-              <User className="w-6 h-6" />
+              {isAuthenticated && user?.picture ? (
+                <img src={user.picture} className="w-8 h-8 rounded-full object-cover" alt="Profile" />
+              ) : (
+                <User className="w-6 h-6" />
+              )}
             </button>
 
             {showDropdown && (
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
                 {isAuthenticated ? (
                   <>
-                    <span className="block px-4 py-2 text-gray-700 dark:text-white">Welcome, {user?.nickname || "User"}</span>
-                    <Link href="/profile" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Profile</Link>
-                    <Link href="/orderHistory" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Order History</Link>
-                    <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Log Out</Link>
+                    <span className="block px-4 py-2 text-gray-700 dark:text-white">
+                      Welcome, {user?.given_name || "User"}
+                    </span>
+                    <Link href="/profile" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                      Profile
+                    </Link>
+                    <Link href="/orderHistory" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                      Order History
+                    </Link>
+                    <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                      Log Out
+                    </Link>
                   </>
                 ) : (
-                  <>
-                    <Link href="/api/auth/login" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Log In / Sign Up</Link>
-                  </>
+                  <Link href="/api/auth/login" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Log In / Sign Up
+                  </Link>
                 )}
               </div>
             )}
