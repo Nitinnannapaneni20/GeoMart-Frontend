@@ -44,7 +44,7 @@ const Header = () => {
     }
   }, []);
 
-  // ✅ Auth0 User Data to Local Storage
+  // ✅ Auth0 User Data to Local Storage and API sync
   useEffect(() => {
     if (isAuthenticated && user) {
       const userData = {
@@ -55,6 +55,17 @@ const Header = () => {
         picture: user.picture,
       };
       localStorage.setItem("auth0User", JSON.stringify(userData));
+
+      // ✅ Post to backend to create/check user
+      fetch("/api/profile/create-if-not-exist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      }).catch((err) => {
+        console.error("User sync failed:", err);
+      });
     } else {
       localStorage.removeItem("auth0User");
     }

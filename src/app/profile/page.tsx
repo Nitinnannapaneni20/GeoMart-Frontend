@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { User } from "lucide-react";
 
@@ -12,19 +12,54 @@ interface ProfileFormData {
   city: string;
   state: string;
   zip: string;
+  sub?: string;
 }
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState<ProfileFormData>({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1 555-123-4567",
-    addressLine1: "123 Main St",
+    name: "",
+    email: "",
+    phone: "",
+    addressLine1: "",
     addressLine2: "",
-    city: "Leeds",
-    state: "West Yorkshire",
-    zip: "LS1 1AA",
+    city: "",
+    state: "",
+    zip: "",
+    sub: "",
   });
+
+  // 🟢 Fetch user profile from backend on load
+  useEffect(() => {
+    const auth0User = localStorage.getItem("auth0User");
+    if (!auth0User) return;
+
+    const parsed = JSON.parse(auth0User);
+    const sub = parsed?.sub;
+    if (!sub) return;
+
+    fetch(`/api/profile/${sub}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch user profile");
+        return res.json();
+      })
+      .then((data) => {
+        setFormData(data);
+      })
+      .catch((err) => {
+        // fallback to auth0 data if user not found
+        setFormData({
+          name: `${parsed.given_name || ""} ${parsed.family_name || ""}`.trim(),
+          email: parsed.email,
+          phone: "",
+          addressLine1: "",
+          addressLine2: "",
+          city: "",
+          state: "",
+          zip: "",
+          sub,
+        });
+      });
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -33,9 +68,21 @@ export default function ProfilePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 🟢 Update user profile
   const handleSave = async () => {
-    // await fetch("/api/profile/update", { ... })
-    alert("Profile saved (mock). In a real app, you’d call an API here.");
+    const res = await fetch("/api/profile/update", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (res.ok) {
+      alert("Profile updated successfully!");
+    } else {
+      alert("Failed to update profile.");
+    }
   };
 
   return (
@@ -64,173 +111,38 @@ export default function ProfilePage() {
 
           <div className="bg-white dark:bg-gray-800 dark:bg-opacity-80 rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Name */}
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
+              {/* Form Fields */}
+              {[
+                ["name", "Full Name"],
+                ["email", "Email"],
+                ["phone", "Phone Number"],
+                ["addressLine1", "Address Line 1"],
+                ["addressLine2", "Address Line 2 (optional)"],
+                ["city", "City"],
+                ["state", "State / Province"],
+                ["zip", "ZIP / Postal Code"],
+              ].map(([field, label]) => (
+                <div
+                  key={field}
+                  className={field === "addressLine1" || field === "addressLine2" ? "sm:col-span-2" : ""}
                 >
-                  Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="John Doe"
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="john@example.com"
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
-                >
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  id="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="+1 555-123-4567"
-                />
-              </div>
-
-              {/* Address Line 1 */}
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="addressLine1"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
-                >
-                  Address Line 1
-                </label>
-                <input
-                  type="text"
-                  name="addressLine1"
-                  id="addressLine1"
-                  value={formData.addressLine1}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="123 Main St"
-                />
-              </div>
-
-              {/* Address Line 2 */}
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="addressLine2"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
-                >
-                  Address Line 2 (optional)
-                </label>
-                <input
-                  type="text"
-                  name="addressLine2"
-                  id="addressLine2"
-                  value={formData.addressLine2}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="Apartment, suite, unit, etc."
-                />
-              </div>
-
-              {/* City */}
-              <div>
-                <label
-                  htmlFor="city"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
-                >
-                  City
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  id="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="Leeds"
-                />
-              </div>
-
-              {/* State */}
-              <div>
-                <label
-                  htmlFor="state"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
-                >
-                  State / Province
-                </label>
-                <input
-                  type="text"
-                  name="state"
-                  id="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="West Yorkshire"
-                />
-              </div>
-
-              {/* Zip */}
-              <div>
-                <label
-                  htmlFor="zip"
-                  className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
-                >
-                  ZIP / Postal Code
-                </label>
-                <input
-                  type="text"
-                  name="zip"
-                  id="zip"
-                  value={formData.zip}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                             transition"
-                  placeholder="LS1 1AA"
-                />
-              </div>
+                  <label
+                    htmlFor={field}
+                    className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
+                  >
+                    {label}
+                  </label>
+                  <input
+                    type="text"
+                    name={field}
+                    id={field}
+                    value={(formData as any)[field] || ""}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
+                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              ))}
             </div>
 
             <button
