@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { User } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 interface ProfileFormData {
   name: string;
@@ -42,13 +43,12 @@ export default function ProfilePage() {
         return;
       }
 
-      clearInterval(interval); // we found it
+      clearInterval(interval);
 
       const parsed = JSON.parse(auth0User);
       const sub = parsed?.sub;
       if (!sub) return;
 
-      console.log("Found sub:", sub);
       fetch("http://localhost:8080/api/profile/get", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,23 +59,19 @@ export default function ProfilePage() {
           return res.json();
         })
         .then((data) => {
-          const [addressLine1, addressLine2 = "", city = "", state = "", zip = ""] =
-            data.address?.split(",").map((part: string) => part.trim()) || [];
-
           setFormData({
             name: data.name,
             email: data.email,
             phone: data.phone,
-            addressLine1: addressLine1 || "",
-            addressLine2,
-            city,
-            state,
-            zip,
+            addressLine1: data.addressLine1 || "",
+            addressLine2: data.addressLine2 || "",
+            city: data.city || "",
+            state: data.state || "",
+            zip: data.zip || "",
             sub: data.sub,
           });
         })
         .catch(() => {
-          // fallback to auth0 data if backend not ready
           setFormData({
             name: `${parsed.given_name || ""} ${parsed.family_name || ""}`.trim(),
             email: parsed.email,
@@ -110,15 +106,16 @@ export default function ProfilePage() {
     });
 
     if (res.ok) {
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } else {
-      alert("Failed to update profile.");
+      toast.error("Failed to update profile.");
     }
   };
 
   return (
     <>
       <Header />
+      <Toaster position="bottom-right" reverseOrder={false} />
       <main className="min-h-screen bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:via-black dark:to-gray-900 pt-20 pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-8">
           {/* Profile Header */}
