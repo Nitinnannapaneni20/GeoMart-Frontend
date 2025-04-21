@@ -28,37 +28,69 @@ export default function ProfilePage() {
     sub: "",
   });
 
-  // 🟢 Fetch user profile from backend on load
   useEffect(() => {
-    const auth0User = localStorage.getItem("auth0User");
-    if (!auth0User) return;
+    let tries = 0;
+    const maxTries = 10;
 
-    const parsed = JSON.parse(auth0User);
-    const sub = parsed?.sub;
-    if (!sub) return;
+    const interval = setInterval(() => {
+      const auth0User = localStorage.getItem("auth0User");
 
-    fetch(`/api/profile/${sub}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch user profile");
-        return res.json();
+      if (!auth0User) {
+        console.log("Waiting for auth0User in localStorage...");
+        tries++;
+        if (tries >= maxTries) clearInterval(interval);
+        return;
+      }
+
+      clearInterval(interval); // we found it
+
+      const parsed = JSON.parse(auth0User);
+      const sub = parsed?.sub;
+      if (!sub) return;
+
+      console.log("Found sub:", sub);
+      fetch("http://localhost:8080/api/profile/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sub }),
       })
-      .then((data) => {
-        setFormData(data);
-      })
-      .catch((err) => {
-        // fallback to auth0 data if user not found
-        setFormData({
-          name: `${parsed.given_name || ""} ${parsed.family_name || ""}`.trim(),
-          email: parsed.email,
-          phone: "",
-          addressLine1: "",
-          addressLine2: "",
-          city: "",
-          state: "",
-          zip: "",
-          sub,
+        .then((res) => {
+          if (!res.ok) throw new Error("User not found");
+          return res.json();
+        })
+        .then((data) => {
+          const [addressLine1, addressLine2 = "", city = "", state = "", zip = ""] =
+            data.address?.split(",").map((part: string) => part.trim()) || [];
+
+          setFormData({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            addressLine1: addressLine1 || "",
+            addressLine2,
+            city,
+            state,
+            zip,
+            sub: data.sub,
+          });
+        })
+        .catch(() => {
+          // fallback to auth0 data if backend not ready
+          setFormData({
+            name: `${parsed.given_name || ""} ${parsed.family_name || ""}`.trim(),
+            email: parsed.email,
+            phone: "",
+            addressLine1: "",
+            addressLine2: "",
+            city: "",
+            state: "",
+            zip: "",
+            sub,
+          });
         });
-      });
+    }, 300);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleChange = (
@@ -68,9 +100,8 @@ export default function ProfilePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🟢 Update user profile
   const handleSave = async () => {
-    const res = await fetch("/api/profile/update", {
+    const res = await fetch("http://localhost:8080/api/profile/update", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -90,11 +121,9 @@ export default function ProfilePage() {
       <Header />
       <main className="min-h-screen bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:via-black dark:to-gray-900 pt-20 pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-8">
-
           {/* Profile Header */}
           <div className="flex flex-col sm:flex-row items-center sm:items-end sm:justify-between mt-6 mb-8">
             <div className="flex items-center">
-              {/* Avatar with an icon instead of an image */}
               <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-indigo-600 shadow-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                 <User className="w-16 h-16 text-gray-600 dark:text-gray-300" />
               </div>
@@ -109,9 +138,9 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Form */}
           <div className="bg-white dark:bg-gray-800 dark:bg-opacity-80 rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Form Fields */}
               {[
                 ["name", "Full Name"],
                 ["email", "Email"],
@@ -124,7 +153,7 @@ export default function ProfilePage() {
               ].map(([field, label]) => (
                 <div
                   key={field}
-                  className={field === "addressLine1" || field === "addressLine2" ? "sm:col-span-2" : ""}
+                  className={["addressLine1", "addressLine2"].includes(field) ? "sm:col-span-2" : ""}
                 >
                   <label
                     htmlFor={field}
@@ -139,7 +168,7 @@ export default function ProfilePage() {
                     value={(formData as any)[field] || ""}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                             focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                               focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
                   />
                 </div>
               ))}
