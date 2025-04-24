@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sun, Moon, ShoppingCart, User } from "lucide-react";
+import { Sun, Moon, ShoppingCart } from "lucide-react";
 import useUser from "../hooks/useUser";
 
 interface UserData {
@@ -23,49 +23,42 @@ type LocationType = typeof locations[number];
 
 const Header = () => {
   const { user, isAuthenticated } = useUser() as UseUserReturn;
-  const [showDropdown, setShowDropdown] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationType>("Leeds");
-  const [darkMode, setDarkMode] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme");
     if (storedTheme === "dark") {
       setDarkMode(true);
       document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
     }
 
     const storedLocation = localStorage.getItem("userLocation");
     if (storedLocation && locations.includes(storedLocation as LocationType)) {
       setSelectedLocation(storedLocation as LocationType);
     }
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleThemeToggle = () => {
-    const isDark = !darkMode;
-    setDarkMode(isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    document.documentElement.classList.toggle("dark", isDark);
+    setDarkMode(!darkMode);
+    localStorage.setItem("theme", !darkMode ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", !darkMode);
   };
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const location = e.target.value as LocationType;
-    setSelectedLocation(location);
-    localStorage.setItem("userLocation", location);
+  const handleLocationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLocation = event.target.value as LocationType;
+    setSelectedLocation(newLocation);
+    localStorage.setItem("userLocation", newLocation);
   };
 
   return (
     <header className="bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50">
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">GeoMart</Link>
+        <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
+          GeoMart
+        </Link>
 
         <div className="flex items-center gap-6">
           <select
@@ -78,32 +71,34 @@ const Header = () => {
             ))}
           </select>
 
-          <Link href="/specials" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">Specials</Link>
-          <Link href="/cart"><ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" /></Link>
+          <Link href="/specials" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+            Specials
+          </Link>
+
+          <Link href="/cart" className="relative">
+            <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
+          </Link>
 
           {isAuthenticated && user ? (
-            <div ref={dropdownRef} className="relative">
-              <button
-                onClick={() => setShowDropdown(prev => !prev)}
-                className="flex items-center gap-2 text-gray-900 dark:text-white"
-              >
-                {user.picture ? (
-                  <img src={user.picture} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
-                ) : (
-                  <User className="w-6 h-6" />
-                )}
-              </button>
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
-                  <span className="block px-4 py-2 text-gray-700 dark:text-white">Welcome, {user.given_name || "User"}</span>
-                  <Link href="/profile" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Profile</Link>
-                  <Link href="/orderHistory" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Order History</Link>
-                  <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">Log Out</Link>
-                </div>
-              )}
-            </div>
+            <>
+              <span className="text-gray-900 dark:text-white font-medium">
+                Welcome, {user.given_name || "User"}
+              </span>
+              <Link href="/profile" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+                Profile
+              </Link>
+              <Link href="/orderHistory" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+                Orders
+              </Link>
+              <Link href="/api/auth/logout" className="text-red-600 dark:text-red-400 hover:text-red-800 transition">
+                Logout
+              </Link>
+            </>
           ) : (
-            <Link href="/api/auth/login" className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">
+            <Link
+              href="/api/auth/login"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            >
               Log In / Sign Up
             </Link>
           )}
