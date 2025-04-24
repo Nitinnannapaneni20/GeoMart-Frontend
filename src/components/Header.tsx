@@ -43,44 +43,6 @@ const Header = () => {
     }
   }, []);
 
-  // ✅ Sync user data to backend for profile creation
-  useEffect(() => {
-    const syncUser = async () => {
-      if (!isAuthenticated || !user) return;
-
-      const userData = {
-        given_name: user.given_name,
-        family_name: user.family_name,
-        email: user.email,
-        picture: user.picture,
-      };
-
-      try {
-        const res = await fetch("/api/get-token");
-        if (!res.ok) throw new Error("Failed to get token");
-
-        const { idToken } = await res.json(); // or use accessToken if you prefer
-
-        const apiRes = await fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${idToken}`, // 🔥 This is what your Go backend needs
-          },
-          body: JSON.stringify(userData),
-        });
-
-        if (!apiRes.ok) throw new Error(`API failed: ${apiRes.status}`);
-        console.log("✅ User sync successful!");
-        console.log(`${idToken}`);
-      } catch (err) {
-        console.error("❌ Sync failed:", err);
-      }
-    };
-
-    syncUser();
-  }, [isAuthenticated, user]);
-
   const handleThemeToggle = () => {
     setDarkMode(!darkMode);
     localStorage.setItem("theme", !darkMode ? "dark" : "light");

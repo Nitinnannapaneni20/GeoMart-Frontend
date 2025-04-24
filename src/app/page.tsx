@@ -20,6 +20,7 @@ import {
   Trash2,  // <-- new icons
 } from "lucide-react";
 import { useCart } from "./CartContext"; // Adjust path if needed
+import useUser from "../hooks/useUser"; // Make sure this is imported if not already
 
 // Define interfaces for our data structures
 interface Product {
@@ -173,6 +174,7 @@ export default function HomePage() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [promotionProducts, setPromotionProducts] = useState<Product[]>([]);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
+  const { user, isAuthenticated } = useUser(); // ✅ useAuth0 or useUser hook depending on your setup
 
   useEffect(() => {
     const fetchData = async () => {
@@ -197,6 +199,43 @@ export default function HomePage() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+      const syncUser = async () => {
+        if (!isAuthenticated || !user) return;
+
+        try {
+          const res = await fetch("/api/get-token");
+          if (!res.ok) throw new Error("Failed to get token");
+
+          const { idToken } = await res.json();
+
+          const userData = {
+            given_name: user.given_name,
+            family_name: user.family_name,
+            email: user.email,
+            picture: user.picture,
+          };
+
+          const apiRes = await fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${idToken}`,
+            },
+            body: JSON.stringify(userData),
+            credentials: "include",
+          });
+
+          if (!apiRes.ok) throw new Error(`Sync failed: ${apiRes.status}`);
+          console.log("✅ User sync success");
+        } catch (err) {
+          console.error("❌ User sync failed:", err);
+        }
+      };
+
+      syncUser();
+    }, [isAuthenticated, user]);
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const categoryId = parseInt(e.target.value);
