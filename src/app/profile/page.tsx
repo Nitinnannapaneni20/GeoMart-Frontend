@@ -49,7 +49,7 @@ export default function ProfilePage() {
       const sub = parsed?.sub;
       if (!sub) return;
 
-      fetch("http://localhost:8080/api/profile/get", {
+      fetch("https://api.geomart.co.uk/api/profile/get", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sub }),
@@ -97,7 +97,7 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    const res = await fetch("http://localhost:8080/api/profile/update", {
+    const res = await fetch("https://api.geomart.co.uk/api/profile/update", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
