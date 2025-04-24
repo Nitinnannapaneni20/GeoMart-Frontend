@@ -69,13 +69,8 @@ const Header = () => {
 
   const handleThemeToggle = () => {
     setDarkMode(!darkMode);
-    if (!darkMode) {
-      localStorage.setItem("theme", "dark");
-      document.documentElement.classList.add("dark");
-    } else {
-      localStorage.setItem("theme", "light");
-      document.documentElement.classList.remove("dark");
-    }
+    localStorage.setItem("theme", !darkMode ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", !darkMode);
   };
 
   const handleLocationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -87,12 +82,12 @@ const Header = () => {
   return (
     <header className="bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50">
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        {/* Left-aligned GeoMart Logo */}
+        {/* Left-aligned logo */}
         <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
           GeoMart
         </Link>
 
-        {/* Right-aligned Navigation & Actions */}
+        {/* Right-aligned controls */}
         <div className="flex items-center gap-6">
           {/* Location Dropdown */}
           <select
@@ -105,53 +100,57 @@ const Header = () => {
             ))}
           </select>
 
-          {/* Specials Link */}
+          {/* Specials */}
           <Link href="/specials" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
             Specials
           </Link>
 
-          {/* Cart Icon */}
+          {/* Cart */}
           <Link href="/cart" className="relative">
             <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
           </Link>
 
-          {/* Profile Dropdown */}
-          <div className="relative">
-            <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center gap-2 text-gray-900 dark:text-white">
-              {isAuthenticated && user?.picture ? (
-                <img src={user.picture} className="w-8 h-8 rounded-full object-cover" alt="Profile" />
-              ) : (
-                <User className="w-6 h-6" />
-              )}
-            </button>
-
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
-                {isAuthenticated ? (
-                  <>
-                    <span className="block px-4 py-2 text-gray-700 dark:text-white">
-                      Welcome, {user?.given_name || "User"}
-                    </span>
-                    <Link href="/profile" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Profile
-                    </Link>
-                    <Link href="/orderHistory" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Order History
-                    </Link>
-                    <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Log Out
-                    </Link>
-                  </>
+          {/* Profile */}
+          {isAuthenticated ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center gap-2 text-gray-900 dark:text-white"
+              >
+                {user?.picture ? (
+                  <img src={user.picture} className="w-8 h-8 rounded-full object-cover" alt="Profile" />
                 ) : (
-                  <Link href="/api/auth/login" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                    Log In / Sign Up
-                  </Link>
+                  <User className="w-6 h-6" />
                 )}
-              </div>
-            )}
-          </div>
+              </button>
 
-          {/* Dark Mode Toggle */}
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
+                  <span className="block px-4 py-2 text-gray-700 dark:text-white">
+                    Welcome, {user?.given_name || "User"}
+                  </span>
+                  <Link href="/profile" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Profile
+                  </Link>
+                  <Link href="/orderHistory" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Order History
+                  </Link>
+                  <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Log Out
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/api/auth/login"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            >
+              Log In / Sign Up
+            </Link>
+          )}
+
+          {/* Dark Mode */}
           <button onClick={handleThemeToggle} className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
             {darkMode ? <Sun className="w-6 h-6 text-yellow-500" /> : <Moon className="w-6 h-6 text-gray-600" />}
           </button>

@@ -1,12 +1,15 @@
-import { handleAuth } from '@auth0/nextjs-auth0';
+import { handleAuth, initAuth0 } from '@auth0/nextjs-auth0';
 
-export default handleAuth({
-  login: async (req, res) => {
-    try {
-      return await handleAuth()(req, res);
-    } catch (error) {
-      console.error("Auth0 Login Error:", error);
-      res.status(error.status || 500).json({ error: error.message });
-    }
-  }
+const auth0 = initAuth0({
+  session: {
+    cookieSecret: process.env.AUTH0_SECRET || 'supersecuresecret_change_this', // fallback for now
+    cookieLifetime: 60 * 60 * 8, // 8 hours
+    storeIdToken: true,
+    storeAccessToken: true,
+    storeRefreshToken: true,
+    cookieSameSite: 'none',       // ✅ Allow cross-site cookies
+    cookieSecure: true,           // ✅ Required for SameSite=None
+  },
 });
+
+export default handleAuth(auth0);
