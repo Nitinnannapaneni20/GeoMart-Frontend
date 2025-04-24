@@ -44,28 +44,41 @@ const Header = () => {
   }, []);
 
   // ✅ Sync user data to backend for profile creation
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      const userData = {
-        given_name: user.given_name,
-        family_name: user.family_name,
-        email: user.email,
-        picture: user.picture,
-      };
+ // Inside your useEffect for syncing user data
+ useEffect(() => {
+   if (isAuthenticated && user) {
+     const userData = {
+       given_name: user.given_name,
+       family_name: user.family_name,
+       email: user.email,
+       picture: user.picture,
+     };
 
-      // ✅ Post to backend to create/check user
-      fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(userData),
-      }).catch((err) => {
-        console.error("User sync failed:", err);
-      });
-    }
-  }, [isAuthenticated, user]);
+     // Modified fetch with proper authentication
+     fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json",
+         // If you have an access token from Auth0, include it
+         // "Authorization": `Bearer ${accessToken}`
+       },
+       credentials: "include", // This will send the cookies, including Auth0's appSession
+       body: JSON.stringify(userData),
+     })
+     .then(response => {
+       if (!response.ok) {
+         throw new Error(`API call failed with status: ${response.status}`);
+       }
+       return response.json();
+     })
+     .then(data => {
+       console.log("User sync successful:", data);
+     })
+     .catch((err) => {
+       console.error("User sync failed:", err);
+     });
+   }
+ }, [isAuthenticated, user]);
 
   const handleThemeToggle = () => {
     setDarkMode(!darkMode);
