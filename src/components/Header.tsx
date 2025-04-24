@@ -57,7 +57,7 @@ const Header = () => {
       localStorage.setItem("auth0User", JSON.stringify(userData));
 
       // ✅ Post to backend to create/check user
-      fetch("http://localhost:8080/api/profile/create-if-not-exist", {
+      fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
