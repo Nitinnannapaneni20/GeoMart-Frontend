@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sun, Moon, ShoppingCart, User } from "lucide-react";
+import { Sun, Moon, ShoppingCart } from "lucide-react";
 import useUser from "../hooks/useUser";
 
-// Define interfaces for type safety
 interface UserData {
   nickname?: string;
   given_name?: string;
@@ -24,7 +23,6 @@ type LocationType = typeof locations[number];
 
 const Header = () => {
   const { user, isAuthenticated } = useUser() as UseUserReturn;
-  const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationType>("Leeds");
   const [darkMode, setDarkMode] = useState<boolean>(false);
 
@@ -58,14 +56,11 @@ const Header = () => {
   return (
     <header className="bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50">
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        {/* Left-aligned logo */}
         <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
           GeoMart
         </Link>
 
-        {/* Right-aligned controls */}
         <div className="flex items-center gap-6">
-          {/* Location Dropdown */}
           <select
             className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white p-2 rounded-md border border-gray-300 dark:border-gray-600"
             value={selectedLocation}
@@ -76,47 +71,29 @@ const Header = () => {
             ))}
           </select>
 
-          {/* Specials */}
           <Link href="/specials" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
             Specials
           </Link>
 
-          {/* Cart */}
           <Link href="/cart" className="relative">
             <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
           </Link>
 
-          {/* Profile */}
-          {isAuthenticated ? (
-            <div className="relative">
-              <button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-2 text-gray-900 dark:text-white"
-              >
-                {user?.picture ? (
-                  <img src={user.picture} className="w-8 h-8 rounded-full object-cover" alt="Profile" />
-                ) : (
-                  <User className="w-6 h-6" />
-                )}
-              </button>
-
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
-                  <span className="block px-4 py-2 text-gray-700 dark:text-white">
-                    Welcome, {user?.given_name || "User"}
-                  </span>
-                  <Link href="/profile" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                    Profile
-                  </Link>
-                  <Link href="/orderHistory" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                    Order History
-                  </Link>
-                  <Link href="/api/auth/logout" className="block px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                    Log Out
-                  </Link>
-                </div>
-              )}
-            </div>
+          {isAuthenticated && user ? (
+            <>
+              <span className="text-gray-900 dark:text-white font-medium">
+                Welcome, {user.given_name || "User"}
+              </span>
+              <Link href="/profile" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+                Profile
+              </Link>
+              <Link href="/orderHistory" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+                Orders
+              </Link>
+              <Link href="/api/auth/logout" className="text-red-600 dark:text-red-400 hover:text-red-800 transition">
+                Logout
+              </Link>
+            </>
           ) : (
             <Link
               href="/api/auth/login"
@@ -126,7 +103,6 @@ const Header = () => {
             </Link>
           )}
 
-          {/* Dark Mode */}
           <button onClick={handleThemeToggle} className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
             {darkMode ? <Sun className="w-6 h-6 text-yellow-500" /> : <Moon className="w-6 h-6 text-gray-600" />}
           </button>
