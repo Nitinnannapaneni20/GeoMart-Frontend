@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Sun, Moon, ShoppingCart } from "lucide-react";
+import { Sun, Moon, ShoppingCart, User } from "lucide-react";
 import useUser from "../hooks/useUser";
 
 interface UserData {
@@ -23,6 +23,9 @@ type LocationType = typeof locations[number];
 
 const Header = () => {
   const { user, isAuthenticated } = useUser() as UseUserReturn;
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
   const [selectedLocation, setSelectedLocation] = useState<LocationType>("Leeds");
   const [darkMode, setDarkMode] = useState<boolean>(false);
 
@@ -41,16 +44,30 @@ const Header = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleThemeToggle = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem("theme", !darkMode ? "dark" : "light");
-    document.documentElement.classList.toggle("dark", !darkMode);
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem("theme", newMode ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", newMode);
   };
 
-  const handleLocationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocation = event.target.value as LocationType;
-    setSelectedLocation(newLocation);
-    localStorage.setItem("userLocation", newLocation);
+  const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const loc = e.target.value as LocationType;
+    setSelectedLocation(loc);
+    localStorage.setItem("userLocation", loc);
   };
 
   return (
@@ -79,21 +96,36 @@ const Header = () => {
             <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
           </Link>
 
-          {isAuthenticated && user ? (
-            <>
-              <span className="text-gray-900 dark:text-white font-medium">
-                Welcome, {user.given_name || "User"}
-              </span>
-              <Link href="/profile" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
-                Profile
-              </Link>
-              <Link href="/orderHistory" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
-                Orders
-              </Link>
-              <Link href="/api/auth/logout" className="text-red-600 dark:text-red-400 hover:text-red-800 transition">
-                Logout
-              </Link>
-            </>
+          {isAuthenticated ? (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowDropdown((prev) => !prev)}
+                className="flex items-center gap-2 text-gray-900 dark:text-white"
+              >
+                {user?.picture ? (
+                  <img src={user.picture} className="w-8 h-8 rounded-full object-cover" alt="Profile" />
+                ) : (
+                  <User className="w-6 h-6" />
+                )}
+              </button>
+
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2 z-50">
+                  <span className="block px-4 py-2 text-gray-700 dark:text-white">
+                    Welcome, {user?.given_name || "User"}
+                  </span>
+                  <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white">
+                    Profile
+                  </Link>
+                  <Link href="/orderHistory" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white">
+                    Order History
+                  </Link>
+                  <Link href="/api/auth/logout" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white">
+                    Log Out
+                  </Link>
+                </div>
+              )}
+            </div>
           ) : (
             <Link
               href="/api/auth/login"
