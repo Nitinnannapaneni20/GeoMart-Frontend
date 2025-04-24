@@ -57,6 +57,13 @@ interface PromotionResponse {
   specials: PromotionProduct[];
 }
 
+interface Auth0User {
+  given_name?: string;
+  family_name?: string;
+  email?: string;
+  picture?: string;
+}
+
 const ImageCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -174,7 +181,7 @@ export default function HomePage() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [promotionProducts, setPromotionProducts] = useState<Product[]>([]);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
-  const { user, isAuthenticated } = useUser(); // ✅ useAuth0 or useUser hook depending on your setup
+  const { user, isAuthenticated } = useUser();
 
   useEffect(() => {
     const fetchData = async () => {
