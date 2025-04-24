@@ -181,7 +181,7 @@ export default function HomePage() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [promotionProducts, setPromotionProducts] = useState<Product[]>([]);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
-  const { user, isAuthenticated } = useUser();
+  const { user, isAuthenticated } = useUser() as { user: Auth0User | null; isAuthenticated: boolean };
 
   useEffect(() => {
     const fetchData = async () => {
