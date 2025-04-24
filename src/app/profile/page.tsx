@@ -1,3 +1,4 @@
+// Updated ProfilePage.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
@@ -13,7 +14,6 @@ interface ProfileFormData {
   city: string;
   state: string;
   zip: string;
-  sub?: string;
 }
 
 export default function ProfilePage() {
@@ -26,73 +26,36 @@ export default function ProfilePage() {
     city: "",
     state: "",
     zip: "",
-    sub: "",
   });
 
   useEffect(() => {
-    let tries = 0;
-    const maxTries = 10;
-
-    const interval = setInterval(() => {
-      const auth0User = localStorage.getItem("auth0User");
-
-      if (!auth0User) {
-        console.log("Waiting for auth0User in localStorage...");
-        tries++;
-        if (tries >= maxTries) clearInterval(interval);
-        return;
-      }
-
-      clearInterval(interval);
-
-      const parsed = JSON.parse(auth0User);
-      const sub = parsed?.sub;
-      if (!sub) return;
-
-      fetch("https://api.geomart.co.uk/api/profile/get", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sub }),
-        credentials: "include",
+    fetch("https://api.geomart.co.uk/api/profile/get", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("User not found");
+        return res.json();
       })
-        .then((res) => {
-          if (!res.ok) throw new Error("User not found");
-          return res.json();
-        })
-        .then((data) => {
-          setFormData({
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            addressLine1: data.addressLine1 || "",
-            addressLine2: data.addressLine2 || "",
-            city: data.city || "",
-            state: data.state || "",
-            zip: data.zip || "",
-            sub: data.sub,
-          });
-        })
-        .catch(() => {
-          setFormData({
-            name: `${parsed.given_name || ""} ${parsed.family_name || ""}`.trim(),
-            email: parsed.email,
-            phone: "",
-            addressLine1: "",
-            addressLine2: "",
-            city: "",
-            state: "",
-            zip: "",
-            sub,
-          });
+      .then((data) => {
+        setFormData({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          addressLine1: data.addressLine1 || "",
+          addressLine2: data.addressLine2 || "",
+          city: data.city || "",
+          state: data.state || "",
+          zip: data.zip || "",
         });
-    }, 300);
-
-    return () => clearInterval(interval);
+      })
+      .catch((err) => {
+        console.error("Profile fetch error:", err);
+        toast.error("Failed to load profile. You may need to log in again.");
+      });
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -140,16 +103,7 @@ export default function ProfilePage() {
           {/* Form */}
           <div className="bg-white dark:bg-gray-800 dark:bg-opacity-80 rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {[
-                ["name", "Full Name"],
-                ["email", "Email"],
-                ["phone", "Phone Number"],
-                ["addressLine1", "Address Line 1"],
-                ["addressLine2", "Address Line 2 (optional)"],
-                ["city", "City"],
-                ["state", "State / Province"],
-                ["zip", "ZIP / Postal Code"],
-              ].map(([field, label]) => (
+              {["name", "email", "phone", "addressLine1", "addressLine2", "city", "state", "zip"].map((field) => (
                 <div
                   key={field}
                   className={["addressLine1", "addressLine2"].includes(field) ? "sm:col-span-2" : ""}
@@ -158,7 +112,7 @@ export default function ProfilePage() {
                     htmlFor={field}
                     className="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
                   >
-                    {label}
+                    {field === "addressLine2" ? "Address Line 2 (optional)" : field.charAt(0).toUpperCase() + field.slice(1)}
                   </label>
                   <input
                     type="text"

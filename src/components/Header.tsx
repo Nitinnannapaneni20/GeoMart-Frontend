@@ -11,7 +11,6 @@ interface UserData {
   given_name?: string;
   family_name?: string;
   email?: string;
-  sub?: string;
   picture?: string;
 }
 
@@ -44,17 +43,15 @@ const Header = () => {
     }
   }, []);
 
-  // ✅ Auth0 User Data to Local Storage and API sync
+  // ✅ Sync user data to backend for profile creation
   useEffect(() => {
     if (isAuthenticated && user) {
       const userData = {
         given_name: user.given_name,
         family_name: user.family_name,
         email: user.email,
-        sub: user.sub,
         picture: user.picture,
       };
-      localStorage.setItem("auth0User", JSON.stringify(userData));
 
       // ✅ Post to backend to create/check user
       fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
@@ -62,13 +59,11 @@ const Header = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData),
         credentials: "include",
+        body: JSON.stringify(userData),
       }).catch((err) => {
         console.error("User sync failed:", err);
       });
-    } else {
-      localStorage.removeItem("auth0User");
     }
   }, [isAuthenticated, user]);
 
