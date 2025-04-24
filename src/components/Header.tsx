@@ -63,6 +63,7 @@ const Header = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(userData),
+        credentials: "include",
       }).catch((err) => {
         console.error("User sync failed:", err);
       });

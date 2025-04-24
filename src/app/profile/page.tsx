@@ -53,6 +53,7 @@ export default function ProfilePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sub }),
+        credentials: "include",
       })
         .then((res) => {
           if (!res.ok) throw new Error("User not found");
@@ -103,6 +104,7 @@ export default function ProfilePage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
+      credentials: "include",
     });
 
     if (res.ok) {
