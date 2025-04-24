@@ -44,41 +44,43 @@ const Header = () => {
   }, []);
 
   // ✅ Sync user data to backend for profile creation
- // Inside your useEffect for syncing user data
- useEffect(() => {
-   if (isAuthenticated && user) {
-     const userData = {
-       given_name: user.given_name,
-       family_name: user.family_name,
-       email: user.email,
-       picture: user.picture,
-     };
+    useEffect(() => {
+      const syncUser = async () => {
+        if (!isAuthenticated || !user) return;
 
-     // Modified fetch with proper authentication
-     fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-         // If you have an access token from Auth0, include it
-         // "Authorization": `Bearer ${accessToken}`
-       },
-       credentials: "include", // This will send the cookies, including Auth0's appSession
-       body: JSON.stringify(userData),
-     })
-     .then(response => {
-       if (!response.ok) {
-         throw new Error(`API call failed with status: ${response.status}`);
-       }
-       return response.json();
-     })
-     .then(data => {
-       console.log("User sync successful:", data);
-     })
-     .catch((err) => {
-       console.error("User sync failed:", err);
-     });
-   }
- }, [isAuthenticated, user]);
+        const userData = {
+          given_name: user.given_name,
+          family_name: user.family_name,
+          email: user.email,
+          picture: user.picture,
+        };
+
+        try {
+          const sessionRes = await fetch("/api/session");
+          const { token } = await sessionRes.json();
+
+          const res = await fetch("https://api.geomart.co.uk/api/profile/create-if-not-exist", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // ✅ manually send the token
+            },
+            body: JSON.stringify(userData),
+          });
+
+          if (!res.ok) {
+            throw new Error(`API failed: ${res.status}`);
+          }
+
+          console.log("User synced!");
+        } catch (err) {
+          console.error("Sync failed:", err);
+        }
+      };
+
+      syncUser();
+    }, [isAuthenticated, user]);
+
 
   const handleThemeToggle = () => {
     setDarkMode(!darkMode);
