@@ -327,7 +327,7 @@ export default function HomePage() {
             {prod.Brand}
           </p>
           <p className="text-2xl font-bold text-indigo-600">
-            ₹{prod.Cost}
+            £{prod.Cost}
           </p>
 
           {/* If product is already in the cart, show +/-/remove; else show Add to cart */}

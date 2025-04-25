@@ -59,7 +59,7 @@ export default function Cart() {
                       <div>
                         <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{item.name}</h4>
                         <p className="text-gray-500 dark:text-gray-400">{item.brand}</p>
-                        <p className="text-indigo-600 font-bold mt-2">₹{item.price}</p>
+                        <p className="text-indigo-600 font-bold mt-2">£{item.price}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-4 md:mt-0">
@@ -87,15 +87,15 @@ export default function Cart() {
                 <div className="space-y-3 text-gray-800 dark:text-gray-200">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>₹{subtotal.toFixed(2)}</span>
+                    <span>£{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (5%)</span>
-                    <span>₹{tax.toFixed(2)}</span>
+                    <span>£{tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-bold border-t border-gray-300 dark:border-gray-600 pt-2">
                     <span>Total</span>
-                    <span>₹{total.toFixed(2)}</span>
+                    <span>£{total.toFixed(2)}</span>
                   </div>
                 </div>
                 <button onClick={() => router.push(`/checkout?total=${total.toFixed(2)}`)} className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg text-lg font-semibold transition">
