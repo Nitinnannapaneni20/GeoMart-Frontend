@@ -12,15 +12,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
-import { saveOrder } from "@/services/Apis";
+import { saveOrder } from "@/services/Apis"; // adjust path if needed
+
+// Create a client component that uses useSearchParams
 import { useSearchParams } from "next/navigation";
 
-function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const total = searchParams?.get("total") ?? "0.00";
   const { cartItems, clearCart } = useCart();
 
+  const [showSuccess, setShowSuccess] = useState(false);
   const buttonContainerRef = useRef<HTMLDivElement>(null);
   const sdkLoadedRef = useRef(false);
 
@@ -37,7 +40,13 @@ function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
         window.paypal.Buttons({
           createOrder: (_data: Record<string, unknown>, actions: any) => {
             return actions.order.create({
-              purchase_units: [{ amount: { value: total } }],
+              purchase_units: [
+                {
+                  amount: {
+                    value: total,
+                  },
+                },
+              ],
             });
           },
           onApprove: async (_data: Record<string, unknown>, actions: any) => {
@@ -56,8 +65,8 @@ function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
               transaction_id: details.id,
             });
 
+            setShowSuccess(true);
             clearCart();
-            onSuccess();
             setTimeout(() => router.push("/"), 3000);
           },
           onError: (err: any) => {
@@ -68,7 +77,7 @@ function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
     };
 
     document.body.appendChild(script);
-  }, [total, router, cartItems, clearCart, onSuccess]);
+  }, [total, router, cartItems, clearCart]);
 
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">
@@ -86,8 +95,8 @@ export default function Checkout() {
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 pt-24 px-6 relative">
-      <Suspense fallback={<div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">Loading checkout...</div>}>
-        <CheckoutContent onSuccess={() => setShowSuccess(true)} />
+      <Suspense fallback={<div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">Loading checkout information...</div>}>
+        <CheckoutContent />
       </Suspense>
 
       {showSuccess && (
