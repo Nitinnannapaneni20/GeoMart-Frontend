@@ -12,18 +12,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
-import { saveOrder } from "@/services/Apis"; // adjust path if needed
-
-// Create a client component that uses useSearchParams
+import { saveOrder } from "@/services/Apis";
 import { useSearchParams } from "next/navigation";
 
-function CheckoutContent() {
+function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const total = searchParams?.get("total") ?? "0.00";
   const { cartItems, clearCart } = useCart();
 
-  const [showSuccess, setShowSuccess] = useState(false);
   const buttonContainerRef = useRef<HTMLDivElement>(null);
   const sdkLoadedRef = useRef(false);
 
@@ -65,8 +62,8 @@ function CheckoutContent() {
               transaction_id: details.id,
             });
 
-            setShowSuccess(true);
             clearCart();
+            onSuccess();
             setTimeout(() => router.push("/"), 3000);
           },
           onError: (err: any) => {
@@ -77,7 +74,7 @@ function CheckoutContent() {
     };
 
     document.body.appendChild(script);
-  }, [total, router, cartItems, clearCart]);
+  }, [total, router, cartItems, clearCart, onSuccess]);
 
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">
@@ -96,7 +93,7 @@ export default function Checkout() {
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 pt-24 px-6 relative">
       <Suspense fallback={<div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">Loading checkout information...</div>}>
-        <CheckoutContent />
+        <CheckoutContent onSuccess={() => setShowSuccess(true)} />
       </Suspense>
 
       {showSuccess && (
