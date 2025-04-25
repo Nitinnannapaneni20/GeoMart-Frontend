@@ -1,5 +1,6 @@
 // Final Updated Checkout Page: app/checkout/page.tsx
 "use client";
+export const dynamic = "force-dynamic";
 
 // 👇 This safely declares the PayPal property on window
 declare global {
