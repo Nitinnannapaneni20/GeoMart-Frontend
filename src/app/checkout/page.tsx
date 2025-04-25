@@ -8,7 +8,7 @@ import { saveOrder } from "@/services/Apis"; // adjust path if needed
 export default function Checkout() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const total = searchParams.get("total") || "0.00";
+  const total = searchParams?.get("total") ?? "0.00";
   const { cartItems, clearCart } = useCart();
 
   const [showSuccess, setShowSuccess] = useState(false);
