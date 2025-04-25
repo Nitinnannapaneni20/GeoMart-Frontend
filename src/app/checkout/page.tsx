@@ -3,6 +3,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
+import { saveOrder } from "@/services/Apis"; // adjust path if needed
 
 export default function Checkout() {
   const searchParams = useSearchParams();
@@ -23,7 +24,6 @@ export default function Checkout() {
     script.onload = () => {
       sdkLoadedRef.current = true;
 
-      // Only render PayPal Buttons if container exists
       if (buttonContainerRef.current) {
         // @ts-ignore
         paypal.Buttons({
@@ -41,10 +41,21 @@ export default function Checkout() {
           onApprove: async (data, actions) => {
             // @ts-ignore
             const details = await actions.order.capture();
+
             console.log("✅ Payment Success!");
             console.log("Cart Items:", cartItems);
             console.log("Total Paid: £", total);
             console.log("PayPal Transaction ID:", details.id);
+
+            // ✅ Save order silently to backend
+            await saveOrder({
+              items: cartItems,
+              total_amount: parseFloat(total),
+              currency: "GBP",
+              payment_status: "COMPLETED",
+              transaction_id: details.id,
+            });
+
             setShowSuccess(true);
             clearCart();
             setTimeout(() => router.push("/"), 3000);
