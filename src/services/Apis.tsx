@@ -73,13 +73,13 @@ export const fetchPromotionProductsByLocation = async (locationId: number): Prom
 
 
 // POST /api/order/save
-export const saveOrder = async (order: Order): Promise<boolean> => {
+export const saveOrder = async (order: Order, token: string): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE_URL}/order/save`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(order),
     });

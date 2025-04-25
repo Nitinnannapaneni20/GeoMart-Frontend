@@ -54,17 +54,25 @@ function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
             console.log("Total Paid: £", total);
             console.log("PayPal Transaction ID:", details.id);
 
-            await saveOrder({
-              items: cartItems,
-              total_amount: parseFloat(total),
-              currency: "GBP",
-              payment_status: "COMPLETED",
-              transaction_id: details.id,
-            });
+            try {
+              const tokenRes = await fetch("/api/get-token");
+              if (!tokenRes.ok) throw new Error("Failed to fetch token");
+              const { idToken } = await tokenRes.json();
 
-            clearCart();
-            onSuccess();
-            setTimeout(() => router.push("/"), 3000);
+              await saveOrder({
+                items: cartItems,
+                total_amount: parseFloat(total),
+                currency: "GBP",
+                payment_status: "COMPLETED",
+                transaction_id: details.id,
+              }, idToken);
+
+              clearCart();
+              onSuccess();
+              setTimeout(() => router.push("/"), 3000);
+            } catch (err) {
+              console.error("❌ Error saving order:", err);
+            }
           },
           onError: (err: any) => {
             console.error("PayPal Checkout Error", err);
