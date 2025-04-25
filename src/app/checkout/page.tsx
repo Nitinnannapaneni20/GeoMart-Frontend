@@ -1,8 +1,7 @@
-// Final Updated Checkout Page: app/checkout/page.tsx
 "use client";
+
 export const dynamic = "force-dynamic";
 
-// 👇 This safely declares the PayPal property on window
 declare global {
   interface Window {
     paypal?: any;
@@ -13,7 +12,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
-import { saveOrder } from "@/services/Apis";
+import { saveOrder } from "@/services/Apis"; // adjust path if needed
 
 export default function Checkout() {
   const searchParams = useSearchParams();
@@ -29,12 +28,12 @@ export default function Checkout() {
     if (sdkLoadedRef.current) return;
 
     const script = document.createElement("script");
-    script.src = "https://www.paypal.com/sdk/js?client-id=AemCjeUnGKea6pd1zJie1tyM39UXxDaemHnAhwzv9tCq18UlPbCpG01uLVxv3eVcAbsXy_l0X_-VRl1y&currency=GBP";
+    script.src = `https://www.paypal.com/sdk/js?client-id=AemCjeUnGKea6pd1zJie1tyM39UXxDaemHnAhwzv9tCq18UlPbCpG01uLVxv3eVcAbsXy_l0X_-VRl1y&currency=GBP`;
     script.async = true;
     script.onload = () => {
       sdkLoadedRef.current = true;
 
-      if (buttonContainerRef.current && typeof window !== "undefined" && window.paypal) {
+      if (typeof window !== "undefined" && window.paypal && buttonContainerRef.current) {
         window.paypal.Buttons({
           createOrder: (_data: Record<string, unknown>, actions: any) => {
             return actions.order.create({
@@ -67,7 +66,7 @@ export default function Checkout() {
             clearCart();
             setTimeout(() => router.push("/"), 3000);
           },
-          onError: (err: unknown) => {
+          onError: (err: any) => {
             console.error("PayPal Checkout Error", err);
           },
         }).render(buttonContainerRef.current);
