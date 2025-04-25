@@ -1,4 +1,13 @@
+// Final Updated Checkout Page: app/checkout/page.tsx
 "use client";
+
+// 👇 This safely declares the PayPal property on window
+declare global {
+  interface Window {
+    paypal?: any;
+  }
+}
+
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle } from "lucide-react";
@@ -25,7 +34,6 @@ export default function Checkout() {
       sdkLoadedRef.current = true;
 
       if (buttonContainerRef.current && typeof window !== "undefined" && window.paypal) {
-        // @ts-ignore
         window.paypal.Buttons({
           createOrder: (_data: Record<string, unknown>, actions: any) => {
             return actions.order.create({
@@ -39,7 +47,6 @@ export default function Checkout() {
             });
           },
           onApprove: async (_data: Record<string, unknown>, actions: any) => {
-            // @ts-ignore
             const details = await actions.order.capture();
 
             console.log("✅ Payment Success!");
