@@ -3,7 +3,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
-import { saveOrder } from "@/services/Apis"; // adjust path if needed
+import { saveOrder } from "@/services/Apis";
 
 export default function Checkout() {
   const searchParams = useSearchParams();
@@ -19,15 +19,15 @@ export default function Checkout() {
     if (sdkLoadedRef.current) return;
 
     const script = document.createElement("script");
-    script.src = `https://www.paypal.com/sdk/js?client-id=AemCjeUnGKea6pd1zJie1tyM39UXxDaemHnAhwzv9tCq18UlPbCpG01uLVxv3eVcAbsXy_l0X_-VRl1y&currency=GBP`;
+    script.src = "https://www.paypal.com/sdk/js?client-id=AemCjeUnGKea6pd1zJie1tyM39UXxDaemHnAhwzv9tCq18UlPbCpG01uLVxv3eVcAbsXy_l0X_-VRl1y&currency=GBP";
     script.async = true;
     script.onload = () => {
       sdkLoadedRef.current = true;
 
-      if (buttonContainerRef.current) {
+      if (buttonContainerRef.current && typeof window !== "undefined" && window.paypal) {
         // @ts-ignore
-        paypal.Buttons({
-          createOrder: (data, actions) => {
+        window.paypal.Buttons({
+          createOrder: (_data: Record<string, unknown>, actions: any) => {
             return actions.order.create({
               purchase_units: [
                 {
@@ -38,7 +38,7 @@ export default function Checkout() {
               ],
             });
           },
-          onApprove: async (data, actions) => {
+          onApprove: async (_data: Record<string, unknown>, actions: any) => {
             // @ts-ignore
             const details = await actions.order.capture();
 
@@ -47,7 +47,6 @@ export default function Checkout() {
             console.log("Total Paid: £", total);
             console.log("PayPal Transaction ID:", details.id);
 
-            // ✅ Save order silently to backend
             await saveOrder({
               items: cartItems,
               total_amount: parseFloat(total),
@@ -60,7 +59,7 @@ export default function Checkout() {
             clearCart();
             setTimeout(() => router.push("/"), 3000);
           },
-          onError: (err) => {
+          onError: (err: unknown) => {
             console.error("PayPal Checkout Error", err);
           },
         }).render(buttonContainerRef.current);
