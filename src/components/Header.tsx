@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Sun, Moon, ShoppingCart } from "lucide-react";
 import useUser from "../hooks/useUser";
+import { useCart } from "../app/CartContext";
 
 interface UserData {
   nickname?: string;
@@ -23,8 +24,11 @@ type LocationType = typeof locations[number];
 
 const Header = () => {
   const { user, isAuthenticated } = useUser() as UseUserReturn;
+  const { cartItems } = useCart();
   const [selectedLocation, setSelectedLocation] = useState<LocationType>("Leeds");
   const [darkMode, setDarkMode] = useState<boolean>(false);
+
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme");
@@ -73,6 +77,11 @@ const Header = () => {
 
           <Link href="/cart" className="relative">
             <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
+            {totalQuantity > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                {totalQuantity}
+              </span>
+            )}
           </Link>
 
           {isAuthenticated && user ? (
