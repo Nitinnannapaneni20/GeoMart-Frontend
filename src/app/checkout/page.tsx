@@ -8,13 +8,16 @@ declare global {
   }
 }
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
 import { saveOrder } from "@/services/Apis"; // adjust path if needed
 
-export default function Checkout() {
+// Create a client component that uses useSearchParams
+import { useSearchParams } from "next/navigation";
+
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const total = searchParams?.get("total") ?? "0.00";
@@ -77,14 +80,24 @@ export default function Checkout() {
   }, [total, router, cartItems, clearCart]);
 
   return (
+    <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Checkout</h1>
+      <p className="text-gray-700 dark:text-gray-300 mb-6">
+        You're about to pay <span className="font-bold">£{total}</span> with PayPal.
+      </p>
+      <div id="paypal-button-container" ref={buttonContainerRef} className="mt-4"></div>
+    </div>
+  );
+}
+
+export default function Checkout() {
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 pt-24 px-6 relative">
-      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Checkout</h1>
-        <p className="text-gray-700 dark:text-gray-300 mb-6">
-          You're about to pay <span className="font-bold">£{total}</span> with PayPal.
-        </p>
-        <div id="paypal-button-container" ref={buttonContainerRef} className="mt-4"></div>
-      </div>
+      <Suspense fallback={<div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">Loading checkout information...</div>}>
+        <CheckoutContent />
+      </Suspense>
 
       {showSuccess && (
         <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
