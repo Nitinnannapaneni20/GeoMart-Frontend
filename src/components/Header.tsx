@@ -71,10 +71,6 @@ const Header = () => {
             ))}
           </select>
 
-          <Link href="/specials" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
-            Specials
-          </Link>
-
           <Link href="/cart" className="relative">
             <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
           </Link>
