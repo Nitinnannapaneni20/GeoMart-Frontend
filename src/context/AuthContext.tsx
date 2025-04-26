@@ -2,13 +2,13 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-// Define user types
-interface UserData {
+export interface UserData {
   nickname?: string;
   given_name?: string;
   family_name?: string;
   email?: string;
   picture?: string;
+  // …any other fields you care about
 }
 
 interface AuthContextType {
@@ -17,14 +17,12 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-// Create the context
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
 });
 
-// Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,25 +31,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/auth/me");
-        if (response.ok) {
-          const text = await response.text();
-          const userData = text ? JSON.parse(text) : null;
+        const response = await fetch("/api/auth/me", {
+          credentials: "include",      // ensure cookies are sent
+        });
+        if (!response.ok) {
+          throw new Error("Not authenticated");
+        }
 
-          if (userData) {
-            setUser(userData);
-            setIsAuthenticated(true);
-          } else {
-            setUser(null);
-            setIsAuthenticated(false);
-            console.warn("No user data available.");
-          }
+        const data = await response.json();
+        // Some setups return { user: {…} }, others return the profile at the top level.
+        const profile = (data.user as any) ?? (data as any);
+
+        if (profile && profile.sub) {
+          // Map only the fields your UI needs
+          setUser({
+            nickname: profile.nickname,
+            given_name: profile.given_name,
+            family_name: profile.family_name,
+            email: profile.email,
+            picture: profile.picture,
+          });
+          setIsAuthenticated(true);
         } else {
-          console.warn("Failed to fetch user:", response.statusText);
+          setUser(null);
           setIsAuthenticated(false);
+          console.warn("No user data in /api/auth/me response");
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.warn("Error fetching /api/auth/me:", error);
+        setUser(null);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -68,5 +76,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook to use auth context easily
+// custom hook for easy consumption
 export const useAuth = () => useContext(AuthContext);
