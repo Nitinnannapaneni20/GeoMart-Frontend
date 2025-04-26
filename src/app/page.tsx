@@ -235,7 +235,6 @@ export default function HomePage() {
           });
 
           if (!apiRes.ok) throw new Error(`Sync failed: ${apiRes.status}`);
-          console.log("✅ User sync success");
         } catch (err) {
           console.error("❌ User sync failed:", err);
         }
