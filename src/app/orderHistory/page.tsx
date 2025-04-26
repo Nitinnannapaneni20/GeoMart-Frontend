@@ -2,7 +2,7 @@
 
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
-import { Loader2, PackageCheck, CheckCircle, ChevronDown, ChevronUp} from "lucide-react";
+import { Loader2, PackageCheck, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -107,6 +107,19 @@ export default function OrderHistory() {
 
                   {expandedOrder === index && (
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
+
+                      {/* Shipping Info */}
+                      <div className="pb-4 text-gray-700 dark:text-gray-300">
+                        <h4 className="text-lg font-semibold mb-2">Shipping Information</h4>
+                        <p>{order.name}</p>
+                        <p>{order.addressLine1}</p>
+                        {order.addressLine2 && <p>{order.addressLine2}</p>}
+                        <p>{order.city}, {order.state} {order.zip}</p>
+                        <p>{order.email}</p>
+                        {order.phone && <p>{order.phone}</p>}
+                      </div>
+
+                      {/* 🛒 Items */}
                       {Array.isArray(order.items) && order.items.length > 0 ? (
                         order.items.map((item: any, i: number) => (
                           <div
