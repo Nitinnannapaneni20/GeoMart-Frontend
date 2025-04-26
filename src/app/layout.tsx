@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { CartProvider } from "./CartContext";
-import { AuthProvider } from "../context/AuthContext"; // ✅ Import AuthProvider
+import { AuthProvider } from "../context/AuthContext";
+import { LocationProvider } from "@/context/LocationContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -20,17 +21,15 @@ export const metadata: Metadata = {
   description: "GeoMart Online Food Store",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider> {/* ✅ Wrap app inside AuthProvider */}
+        <AuthProvider>
           <CartProvider>
-            {children}
+            <LocationProvider>
+              {children}
+            </LocationProvider>
           </CartProvider>
         </AuthProvider>
       </body>

@@ -5,18 +5,17 @@ import Link from "next/link";
 import { Sun, Moon, ShoppingCart, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../app/CartContext";
+import { useLocation } from "../context/LocationContext";
 
 const locationMap = {
   1: "Leeds",
   2: "Huddersfield",
 } as const;
 
-type LocationID = keyof typeof locationMap;
-
 const Header = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { cartItems } = useCart();
-  const [selectedLocation, setSelectedLocation] = useState<LocationID>(1);
+  const { locationId, setLocationId } = useLocation();
   const [darkMode, setDarkMode] = useState(false);
   const [showCartQuantity, setShowCartQuantity] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,11 +29,6 @@ const Header = () => {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
-    }
-
-    const storedLocation = localStorage.getItem("userLocation");
-    if (storedLocation && (storedLocation === "1" || storedLocation === "2")) {
-      setSelectedLocation(Number(storedLocation) as LocationID);
     }
 
     setShowCartQuantity(true);
@@ -53,12 +47,6 @@ const Header = () => {
     document.documentElement.classList.toggle("dark", !darkMode);
   };
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocationId = Number(e.target.value) as LocationID;
-    setSelectedLocation(newLocationId);
-    localStorage.setItem("userLocation", newLocationId.toString());
-  };
-
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -74,8 +62,8 @@ const Header = () => {
         <div className="flex items-center gap-2 md:gap-4">
           {/* Location dropdown */}
           <select
-            value={selectedLocation}
-            onChange={handleLocationChange}
+            value={locationId}
+            onChange={(e) => setLocationId(Number(e.target.value))}
             className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white p-1 md:p-2 text-sm rounded-md border border-gray-300 dark:border-gray-600"
           >
             {Object.entries(locationMap).map(([id, name]) => (
@@ -124,7 +112,11 @@ const Header = () => {
 
           {/* Theme toggle */}
           <button onClick={handleThemeToggle} className="p-1.5 md:p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-            {darkMode ? <Sun className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" /> : <Moon className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />}
+            {darkMode ? (
+              <Sun className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+            ) : (
+              <Moon className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
+            )}
           </button>
 
           {/* Hamburger menu */}
@@ -150,7 +142,9 @@ const Header = () => {
             <div className="flex flex-col gap-6 mt-8">
               {!isLoading && isAuthenticated && user ? (
                 <>
-                  <span className="text-gray-900 dark:text-white font-medium">Welcome, {user.given_name || "User"}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    Welcome, {user.given_name || "User"}
+                  </span>
                   <Link href="/profile" onClick={closeMenu} className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
                     Profile
                   </Link>
