@@ -20,7 +20,7 @@ import {
   Trash2,  // <-- new icons
 } from "lucide-react";
 import { useCart } from "./CartContext"; // Adjust path if needed
-import useUser from "../hooks/useUser"; // Make sure this is imported if not already
+import { useAuth } from "@/context/AuthContext";
 
 // Define interfaces for our data structures
 interface Product {
@@ -181,7 +181,7 @@ export default function HomePage() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [promotionProducts, setPromotionProducts] = useState<Product[]>([]);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
-  const { user, isAuthenticated } = useUser() as { user: Auth0User | null; isAuthenticated: boolean };
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
