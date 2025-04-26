@@ -40,8 +40,15 @@ interface Order {
   payment_status: string;
   transaction_id: string;
   user_id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state?: string;
+  zip: string;
 }
-
 const API_BASE_URL = 'https://api.geomart.co.uk/api';
 
 // Fetch product data by location_id
