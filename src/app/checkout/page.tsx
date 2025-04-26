@@ -14,13 +14,24 @@ import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
 import { saveOrder } from "@/services/Apis";
 
+interface ShippingInfo {
+  name: string;
+  email: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
 function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const total = searchParams?.get("total") ?? "0.00";
   const { cartItems, clearCart } = useCart();
 
-  const [shippingInfo, setShippingInfo] = useState({
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     name: "",
     email: "",
     phone: "",
@@ -151,8 +162,6 @@ function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
                 currency: "GBP",
                 payment_status: "COMPLETED",
                 transaction_id: details.id,
-
-                // flattened shipping fields
                 name: shippingInfo.name,
                 email: shippingInfo.email,
                 phone: shippingInfo.phone,
