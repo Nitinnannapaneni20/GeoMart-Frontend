@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Sun, Moon, ShoppingCart } from "lucide-react";
-import useUser from "../hooks/useUser";
+import { useAuth } from "../context/AuthContext"; // ✅ Use useAuth instead of useUser
 import { useCart } from "../app/CartContext";
 
 interface UserData {
@@ -14,19 +14,15 @@ interface UserData {
   picture?: string;
 }
 
-interface UseUserReturn {
-  user: UserData | null;
-  isAuthenticated: boolean;
-}
-
 const locations = ["Leeds", "Huddersfield"] as const;
 type LocationType = typeof locations[number];
 
 const Header = () => {
-  const { user, isAuthenticated } = useUser() as UseUserReturn;
+  const { user, isAuthenticated, isLoading } = useAuth();
   const { cartItems } = useCart();
   const [selectedLocation, setSelectedLocation] = useState<LocationType>("Leeds");
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [showCartQuantity, setShowCartQuantity] = useState(false);
 
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -43,6 +39,8 @@ const Header = () => {
     if (storedLocation && locations.includes(storedLocation as LocationType)) {
       setSelectedLocation(storedLocation as LocationType);
     }
+
+    setShowCartQuantity(true); // ✅ Only show cart count on client side
   }, []);
 
   const handleThemeToggle = () => {
@@ -77,35 +75,38 @@ const Header = () => {
 
           <Link href="/cart" className="relative">
             <ShoppingCart className="w-6 h-6 text-gray-900 dark:text-white" />
-            {totalQuantity > 0 && (
+            {showCartQuantity && totalQuantity > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
                 {totalQuantity}
               </span>
             )}
           </Link>
 
-          {isAuthenticated && user ? (
-            <>
-              <span className="text-gray-900 dark:text-white font-medium">
-                Welcome, {user.given_name || "User"}
-              </span>
-              <Link href="/profile" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
-                Profile
+          {/* Wait until loading finishes */}
+          {!isLoading && (
+            isAuthenticated && user ? (
+              <>
+                <span className="text-gray-900 dark:text-white font-medium">
+                  Welcome, {user.given_name || "User"}
+                </span>
+                <Link href="/profile" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+                  Profile
+                </Link>
+                <Link href="/orderHistory" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
+                  Orders
+                </Link>
+                <Link href="/api/auth/logout" className="text-red-600 dark:text-red-400 hover:text-red-800 transition">
+                  Logout
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/api/auth/login"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+              >
+                Log In / Sign Up
               </Link>
-              <Link href="/orderHistory" className="text-gray-900 dark:text-white hover:text-indigo-600 transition">
-                Orders
-              </Link>
-              <Link href="/api/auth/logout" className="text-red-600 dark:text-red-400 hover:text-red-800 transition">
-                Logout
-              </Link>
-            </>
-          ) : (
-            <Link
-              href="/api/auth/login"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
-            >
-              Log In / Sign Up
-            </Link>
+            )
           )}
 
           <button onClick={handleThemeToggle} className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
