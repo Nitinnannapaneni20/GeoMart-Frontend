@@ -17,10 +17,11 @@ import {
   ChevronRight,
   Plus,
   Minus,
-  Trash2,  // <-- new icons
+  Trash2,
 } from "lucide-react";
-import { useCart } from "./CartContext"; // Adjust path if needed
+import { useCart } from "./CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useLocation } from "@/context/LocationContext";
 
 // Define interfaces for our data structures
 interface Product {
@@ -182,20 +183,16 @@ export default function HomePage() {
   const [promotionProducts, setPromotionProducts] = useState<Product[]>([]);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
   const { user, isAuthenticated } = useAuth();
+  const { locationId } = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
-      const locationId = 1;
       try {
         const result = await fetchProductsDataByLocation(locationId);
-        const promotedProducts = (await fetchPromotionProductsByLocation(
-          locationId
-        )) as PromotionResponse;
+        const promotedProducts = (await fetchPromotionProductsByLocation(locationId)) as PromotionResponse;
 
         if (promotedProducts) {
-          setPromotionProducts(
-            promotedProducts.specials.map((special) => special.Product)
-          );
+          setPromotionProducts(promotedProducts.specials.map((special) => special.Product));
         }
         if (result) {
           setData(result as DataState);
@@ -205,7 +202,7 @@ export default function HomePage() {
       }
     };
     fetchData();
-  }, []);
+  }, [locationId]);
 
   useEffect(() => {
       const syncUser = async () => {
@@ -247,9 +244,7 @@ export default function HomePage() {
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const categoryId = parseInt(e.target.value);
     setSelectedCategory(categoryId.toString());
-    setFilteredTypes(
-      data.productTypes.filter((type) => type.CategoryID === categoryId)
-    );
+    setFilteredTypes(data.productTypes.filter((type) => type.CategoryID === categoryId));
     setFilteredProducts([]);
     setSelectedType("");
   };
@@ -257,9 +252,7 @@ export default function HomePage() {
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const typeId = parseInt(e.target.value);
     setSelectedType(typeId.toString());
-    setFilteredProducts(
-      data.products.filter((product) => product.TypeID === typeId)
-    );
+    setFilteredProducts(data.products.filter((product) => product.TypeID === typeId));
   };
 
   const handleSearch = () => {
@@ -275,13 +268,9 @@ export default function HomePage() {
     setSearchResults([]);
     setIsFiltering(false);
     try {
-      const promotedProducts = (await fetchPromotionProductsByLocation(
-        1
-      )) as PromotionResponse;
+      const promotedProducts = (await fetchPromotionProductsByLocation(locationId)) as PromotionResponse;
       if (promotedProducts) {
-        setPromotionProducts(
-          promotedProducts.specials.map((special) => special.Product)
-        );
+        setPromotionProducts(promotedProducts.specials.map((special) => special.Product));
       }
     } catch (error) {
       console.error("Error fetching promotion products:", error);
@@ -312,54 +301,28 @@ export default function HomePage() {
         className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
       >
         <div className="relative pb-[56.25%]">
-          <Image
-            src={prod.ImageURL}
-            alt={prod.Name}
-            fill
-            className="object-cover"
-          />
+          <Image src={prod.ImageURL} alt={prod.Name} fill className="object-cover" />
         </div>
         <div className="p-6">
-          <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-            {prod.Name}
-          </h4>
-          <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">
-            {prod.Brand}
-          </p>
-          <p className="text-2xl font-bold text-indigo-600">
-            £{prod.Cost}
-          </p>
+          <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{prod.Name}</h4>
+          <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">{prod.Brand}</p>
+          <p className="text-2xl font-bold text-indigo-600">£{prod.Cost}</p>
 
-          {/* If product is already in the cart, show +/-/remove; else show Add to cart */}
           {cartItem ? (
             <div className="flex items-center space-x-2 mt-4">
-              <button
-                onClick={() => updateQuantity(cartItem.id, -1)}
-                className="p-2 bg-gray-200 dark:bg-gray-600 rounded"
-              >
+              <button onClick={() => updateQuantity(cartItem.id, -1)} className="p-2 bg-gray-200 dark:bg-gray-600 rounded">
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="text-gray-900 dark:text-white font-semibold">
-                {cartItem.quantity}
-              </span>
-              <button
-                onClick={() => updateQuantity(cartItem.id, 1)}
-                className="p-2 bg-gray-200 dark:bg-gray-600 rounded"
-              >
+              <span className="text-gray-900 dark:text-white font-semibold">{cartItem.quantity}</span>
+              <button onClick={() => updateQuantity(cartItem.id, 1)} className="p-2 bg-gray-200 dark:bg-gray-600 rounded">
                 <Plus className="w-4 h-4" />
               </button>
-              <button
-                onClick={() => removeFromCart(cartItem.id)}
-                className="p-2 bg-red-500 dark:bg-red-600 text-white rounded"
-              >
+              <button onClick={() => removeFromCart(cartItem.id)} className="p-2 bg-red-500 dark:bg-red-600 text-white rounded">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => handleAddToCart(prod)}
-              className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
-            >
+            <button onClick={() => handleAddToCart(prod)} className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
               Add to Cart
             </button>
           )}
