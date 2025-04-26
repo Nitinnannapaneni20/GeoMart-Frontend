@@ -6,13 +6,17 @@ import { Sun, Moon, ShoppingCart, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../app/CartContext";
 
-const locations = ["Leeds", "Huddersfield"] as const;
-type LocationType = typeof locations[number];
+const locationMap = {
+  1: "Leeds",
+  2: "Huddersfield",
+} as const;
+
+type LocationID = keyof typeof locationMap;
 
 const Header = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { cartItems } = useCart();
-  const [selectedLocation, setSelectedLocation] = useState<LocationType>("Leeds");
+  const [selectedLocation, setSelectedLocation] = useState<LocationID>(1);
   const [darkMode, setDarkMode] = useState(false);
   const [showCartQuantity, setShowCartQuantity] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,8 +33,8 @@ const Header = () => {
     }
 
     const storedLocation = localStorage.getItem("userLocation");
-    if (storedLocation && locations.includes(storedLocation as LocationType)) {
-      setSelectedLocation(storedLocation as LocationType);
+    if (storedLocation && (storedLocation === "1" || storedLocation === "2")) {
+      setSelectedLocation(Number(storedLocation) as LocationID);
     }
 
     setShowCartQuantity(true);
@@ -50,9 +54,9 @@ const Header = () => {
   };
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocation = e.target.value as LocationType;
-    setSelectedLocation(newLocation);
-    localStorage.setItem("userLocation", newLocation);
+    const newLocationId = Number(e.target.value) as LocationID;
+    setSelectedLocation(newLocationId);
+    localStorage.setItem("userLocation", newLocationId.toString());
   };
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -74,9 +78,9 @@ const Header = () => {
             onChange={handleLocationChange}
             className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white p-1 md:p-2 text-sm rounded-md border border-gray-300 dark:border-gray-600"
           >
-            {locations.map((loc) => (
-              <option key={loc} value={loc}>
-                {loc}
+            {Object.entries(locationMap).map(([id, name]) => (
+              <option key={id} value={id}>
+                {name}
               </option>
             ))}
           </select>
@@ -104,13 +108,11 @@ const Header = () => {
                 <Link href="/orderHistory" className="text-gray-900 dark:text-white hover:text-indigo-600 transition mr-4">
                   Orders
                 </Link>
-                {/* Plain <a> for logout to force a full redirect */}
                 <a href="/api/auth/logout" className="text-red-600 dark:text-red-400 hover:text-red-800 transition">
                   Logout
                 </a>
               </>
             ) : (
-              /* Plain <a> for login to force a full redirect */
               <a
                 href="/api/auth/login"
                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
