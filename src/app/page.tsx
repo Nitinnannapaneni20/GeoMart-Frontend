@@ -213,6 +213,7 @@ export default function HomePage() {
 
         try {
           const res = await fetch("/api/get-token");
+          console.log("User Logged in");
           if (!res.ok) throw new Error("Failed to get token");
 
           const { idToken } = await res.json();
