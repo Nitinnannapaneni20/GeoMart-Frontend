@@ -8,12 +8,11 @@ declare global {
   }
 }
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "../CartContext";
 import { saveOrder } from "@/services/Apis";
-import { useSearchParams } from "next/navigation";
 
 function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
   const searchParams = useSearchParams();
@@ -152,7 +151,16 @@ function CheckoutContent({ onSuccess }: { onSuccess: () => void }) {
                 currency: "GBP",
                 payment_status: "COMPLETED",
                 transaction_id: details.id,
-                shipping_address: shippingInfo,
+
+                // flattened shipping fields
+                name: shippingInfo.name,
+                email: shippingInfo.email,
+                phone: shippingInfo.phone,
+                addressLine1: shippingInfo.addressLine1,
+                addressLine2: shippingInfo.addressLine2,
+                city: shippingInfo.city,
+                state: shippingInfo.state,
+                zip: shippingInfo.zip,
               }, idToken);
 
               clearCart();
@@ -212,7 +220,7 @@ export default function Checkout() {
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 pt-24 px-6 relative">
-      <Suspense fallback={<div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700">Loading checkout information...</div>}>
+      <Suspense fallback={<div>Loading checkout information...</div>}>
         <CheckoutContent onSuccess={() => setShowSuccess(true)} />
       </Suspense>
 
