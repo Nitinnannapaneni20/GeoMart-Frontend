@@ -85,9 +85,14 @@ export default function OrderHistory() {
                         <span className="font-mono">{order.transaction_id}</span>
                       </p>
                     </div>
-                    <div className="text-sm font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />{" "}
-                      {order.payment_status || "COMPLETED"}
+                    <div className="flex flex-col items-end space-y-1">
+                      <div className="text-sm font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" />
+                        Payment: {order.payment_status || "Completed"}
+                      </div>
+                      <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                        Order Status: In Progress
+                      </div>
                     </div>
                   </div>
 
@@ -119,8 +124,8 @@ export default function OrderHistory() {
                         {order.phone && <p>{order.phone}</p>}
                       </div>
 
-                      {/* 🛒 Items */}
-                      {Array.isArray(order.items) && order.items.length > 0 ? (
+                      {/* Items */}
+                      {order.items.length > 0 ? (
                         order.items.map((item: any, i: number) => (
                           <div
                             key={i}
