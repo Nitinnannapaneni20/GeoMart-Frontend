@@ -5,11 +5,13 @@ import Header from "@/components/Header";
 import { useCart } from "../CartContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Cart() {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const { isAuthenticated } = useAuth();
 
   // Persist cart to localStorage
   useEffect(() => {
@@ -98,9 +100,28 @@ export default function Cart() {
                     <span>£{total.toFixed(2)}</span>
                   </div>
                 </div>
-                <button onClick={() => router.push(`/checkout?total=${total.toFixed(2)}`)} className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg text-lg font-semibold transition">
-                  Proceed to Checkout
-                </button>
+               <button
+                 disabled={!isAuthenticated}
+                 title={
+                   !isAuthenticated
+                     ? "Please login to proceed to checkout"
+                     : undefined
+                 }
+                 onClick={() => {
+                   if (isAuthenticated) {
+                     router.push(`/checkout?total=${total.toFixed(2)}`);
+                   }
+                 }}
+                 className={[
+                   "mt-6 w-full py-3 rounded-lg text-lg font-semibold transition",
+                   isAuthenticated
+                     ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                     : "bg-gray-500 text-gray-300 cursor-not-allowed",
+                 ].join(" ")}
+               >
+                 Proceed to Checkout
+               </button>
+
               </div>
             </div>
           )}
